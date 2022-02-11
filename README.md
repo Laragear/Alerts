@@ -1,6 +1,16 @@
 # Alerts
 
-Quickly set one or multiple Alerts in your backend, and render them in the frontend.
+Set multiple alerts from your backend, render them in the frontend.
+
+```php
+alert('This is awesome! 😍', 'success')
+```
+
+```html
+<div class="alert alert-success" role="alert">
+    This is awesome! 😍
+</div>
+```
 
 Alerts is compatible with **any** frontend framework to better suit your app, not the other way around.
 

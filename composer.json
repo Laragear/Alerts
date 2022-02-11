@@ -1,6 +1,6 @@
 {
     "name": "laragear/alerts",
-    "description": "Quickly create one or multiple alerts from your backend",
+    "description": "Set multiple alerts from your backend, render them in the frontend.",
     "keywords": [
         "alerts",
         "notifications",
