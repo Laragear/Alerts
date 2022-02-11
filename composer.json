@@ -1,0 +1,69 @@
+{
+    "name": "laragear/alerts",
+    "description": "Quickly create one or multiple alerts from your backend",
+    "keywords": [
+        "alerts",
+        "notifications",
+        "flash",
+        "session",
+        "laravel"
+    ],
+    "homepage": "https://github.com/laragear/alerts",
+    "license": "proprietary",
+    "type": "library",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "authors": [
+        {
+            "name": "Italo Israel Baeza Cabrera",
+            "email": "darkghosthunter@gmail.com",
+            "homepage": "https://patreon.com/packagesforlaravel"
+        }
+    ],
+    "require": {
+        "php": "^8.0||^8.1",
+        "ext-json": "*",
+        "illuminate/config": "9.*",
+        "illuminate/http": "9.*",
+        "illuminate/support": "9.*",
+        "illuminate/collections": "9.*",
+        "illuminate/session": "9.*",
+        "illuminate/view": "9.*",
+        "illuminate/routing": "9.*"
+    },
+    "require-dev": {
+        "orchestra/testbench": "7.*",
+        "mockery/mockery": "^1.5",
+        "phpunit/phpunit": "^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laragear\\Alerts\\": "src"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit --coverage-clover build/logs/clover.xml",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Laragear\\Alerts\\AlertsServiceProvider"
+            ],
+            "aliases": {
+                "Alert": "Laragear\\Alerts\\Facades\\Alert"
+            }
+        }
+    }
+}
