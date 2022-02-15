@@ -1,6 +1,10 @@
 {
     "name": "laragear/alerts",
     "description": "Set multiple alerts from your backend, render them in the frontend.",
+    "type": "library",
+    "license": "propietary",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "keywords": [
         "alerts",
         "notifications",
@@ -8,11 +12,6 @@
         "session",
         "laravel"
     ],
-    "homepage": "https://github.com/laragear/alerts",
-    "license": "proprietary",
-    "type": "library",
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "authors": [
         {
             "name": "Italo Israel Baeza Cabrera",
@@ -20,6 +19,10 @@
             "homepage": "https://patreon.com/packagesforlaravel"
         }
     ],
+    "support": {
+        "source": "https://github.com/laragear/alerts",
+        "issues": "https://github.com/laragear/alerts/issues"
+    },
     "require": {
         "php": "^8.0||^8.1",
         "ext-json": "*",
@@ -65,5 +68,19 @@
                 "Alert": "Laragear\\Alerts\\Facades\\Alert"
             }
         }
-    }
+    },
+    "funding": [
+        {
+            "type": "Patreon",
+            "url": "https://patreon.com/PackagesForLaravel"
+        },
+        {
+            "type": "Ko-Fi",
+            "url": "https://ko-fi.com/DarkGhostHunter"
+        },
+        {
+            "type": "Paypal",
+            "url": "https://paypal.me/darkghosthunter"
+        }
+    ]
 }
