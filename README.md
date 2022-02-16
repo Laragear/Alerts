@@ -628,6 +628,16 @@ The following conditions are available:
 | `withTag()`         | Find alerts with all the given tags.              |
 | `withAnyTag()`      | Find alerts with any of the given tags.           |
 
+## Laravel Octane compatibility
+
+- The Renderer-related classes are registered as singletons.
+- It's safe to extend the `RendererManager` at boot time.
+- The Bag is registered as singleton. **You shouldn't resolve it at boot time.**
+- The Bag contains a stale version of the app config. **You shouldn't change the config.**
+- There are no static properties written during a request.
+
+There should be no problems using this package with Laravel Octane if you use this package as intended.
+
 ## Security
 
 If you discover any security related issues, please email darkghosthunter@gmail.com instead of using the issue tracker.
