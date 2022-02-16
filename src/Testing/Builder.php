@@ -2,16 +2,16 @@
 
 namespace Laragear\Alerts\Testing;
 
+use function action;
 use Countable;
 use Illuminate\Support\Collection;
 use Illuminate\Testing\Assert as PHPUnit;
-use JetBrains\PhpStorm\Pure;
-use Laragear\Alerts\Alert;
-use Laragear\Alerts\Testing\Fakes\BagFake;
-use function action;
 use function in_array;
 use function is_array;
 use function is_string;
+use JetBrains\PhpStorm\Pure;
+use Laragear\Alerts\Alert;
+use Laragear\Alerts\Testing\Fakes\BagFake;
 use function route;
 use function sort;
 use function strcmp;
@@ -43,8 +43,7 @@ class Builder
         protected ?array $tags = null,
         protected ?array $links = null,
         protected bool $anyTag = false,
-    )
-    {
+    ) {
         //
     }
 
@@ -99,8 +98,7 @@ class Builder
         Countable|int|array $number,
         array $replace = [],
         string $locale = null
-    ): static
-    {
+    ): static {
         return $this->withRaw(trans_choice($key, $number, $replace, $locale));
     }
 
@@ -121,7 +119,7 @@ class Builder
         ];
 
         usort($this->links, static function (object $first, object $second): int {
-            return strcmp($first->replace . $first->url, $second->replace . $second->url);
+            return strcmp($first->replace.$first->url, $second->replace.$second->url);
         });
 
         return $this;
@@ -256,6 +254,7 @@ class Builder
 
         return $this->withTag(...$tags);
     }
+
     /**
      * Returns a collection of all matching alerts.
      *
@@ -277,7 +276,7 @@ class Builder
     #[Pure]
     protected function is(Alert $alert): bool
     {
-        if ($this->message !== null && $this->message !== $alert->getMessage())  {
+        if ($this->message !== null && $this->message !== $alert->getMessage()) {
             return false;
         }
 

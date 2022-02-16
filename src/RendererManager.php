@@ -25,6 +25,7 @@ class RendererManager extends Manager
      * Creates a Bootstrap renderer.
      *
      * @return \Laragear\Alerts\Contracts\Renderer
+     *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     protected function createBootstrapDriver(): Contracts\Renderer

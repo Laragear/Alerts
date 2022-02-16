@@ -59,8 +59,7 @@ class BogusAlert extends Alert
         Countable|int|array $number,
         array $replace = [],
         string $locale = null
-    ): static
-    {
+    ): static {
         return $this;
     }
 
