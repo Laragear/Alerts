@@ -2,7 +2,7 @@
     "name": "laragear/alerts",
     "description": "Set multiple alerts from your backend, render them in the frontend.",
     "type": "library",
-    "license": "propietary",
+    "license": "MIT",
     "minimum-stability": "stable",
     "prefer-stable": true,
     "keywords": [
@@ -77,6 +77,10 @@
         {
             "type": "Ko-Fi",
             "url": "https://ko-fi.com/DarkGhostHunter"
+        },
+        {
+            "type": "Buy me a cofee",
+            "url": "https://www.buymeacoffee.com/darkghosthunter"
         },
         {
             "type": "Paypal",
