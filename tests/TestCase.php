@@ -11,7 +11,7 @@ abstract class TestCase extends BaseTestCase
     protected function getPackageAliases($app): array
     {
         return [
-            'Alert' => Alert::class
+            'Alert' => Alert::class,
         ];
     }
 

@@ -10,7 +10,7 @@ use Laragear\Alerts\Testing\Builder;
 class BagFake extends Bag
 {
     /**
-     * Alerts that should be flushed
+     * Alerts that should be flushed.
      *
      * @var \Illuminate\Support\Collection<int, \Laragear\Alerts\Alert>
      */
@@ -44,7 +44,7 @@ class BagFake extends Bag
      */
     public function assertEmpty(): void
     {
-        $this->assertAlert()->missing("Failed to assert that there is no alerts.");
+        $this->assertAlert()->missing('Failed to assert that there is no alerts.');
     }
 
     /**
@@ -54,7 +54,7 @@ class BagFake extends Bag
      */
     public function assertNotEmpty(): void
     {
-        $this->assertAlert()->exists("Failed to assert that there is any alert.");
+        $this->assertAlert()->exists('Failed to assert that there is any alert.');
     }
 
     /**
@@ -96,7 +96,7 @@ class BagFake extends Bag
      */
     public function assertHasPersistent(): void
     {
-        $this->assertAlert()->persisted()->exists("Failed to assert that there is any persistent alert.");
+        $this->assertAlert()->persisted()->exists('Failed to assert that there is any persistent alert.');
     }
 
     /**
@@ -106,6 +106,6 @@ class BagFake extends Bag
      */
     public function assertHasNoPersistent(): void
     {
-        $this->assertAlert()->persisted()->missing("Failed to assert that there is no persistent alerts.");
+        $this->assertAlert()->persisted()->missing('Failed to assert that there is no persistent alerts.');
     }
 }

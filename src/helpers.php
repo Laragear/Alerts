@@ -3,13 +3,12 @@
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
 
-if (!function_exists('alert')) {
+if (! function_exists('alert')) {
     /**
      * Creates an Alert to render, or calls the Alert Bag without arguments.
      *
      * @param  string|null  $message
      * @param  string  ...$types
-     *
      * @return \Laragear\Alerts\Alert|\Laragear\Alerts\Bag
      */
     function alert(string $message = null, string ...$types): Alert|Bag

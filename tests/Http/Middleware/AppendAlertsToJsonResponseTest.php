@@ -15,6 +15,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
             'test',
             function () {
                 alert('foo', 'bar', 'quz');
+
                 return response()->json(['bar' => 'baz']);
             }
         )->middleware('alerts.json');
@@ -39,6 +40,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
             'test',
             function () {
                 alert('foo');
+
                 return response()->json(
                     [
                         'bar' => 'baz',
@@ -55,8 +57,8 @@ class AppendAlertsToJsonResponseTest extends TestCase
                     [
                         'message' => 'foo',
                         'types' => [],
-                        'dismissible' => false
-                    ]
+                        'dismissible' => false,
+                    ],
                 ],
             ]
         );
@@ -113,6 +115,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
             'test',
             function () {
                 alert('foo', 'bar', 'quz');
+
                 return response()->json(['bar' => 'baz']);
             }
         )->middleware('alerts.json:foo.bar.quz');
@@ -129,9 +132,9 @@ class AppendAlertsToJsonResponseTest extends TestCase
                                     'message' => 'foo',
                                     'types' => ['bar', 'quz'],
                                 ],
-                            ]
-                        ]
-                    ]
+                            ],
+                        ],
+                    ],
                 ]
             );
     }
@@ -142,6 +145,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
             'test',
             function () {
                 alert('foo', 'bar', 'quz');
+
                 return response()->json(['bar' => 'baz']);
             }
         )->middleware('alerts.json:bar');
