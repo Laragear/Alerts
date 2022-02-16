@@ -1,4 +1,5 @@
 # Alerts
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/laragear/alerts.svg)](https://packagist.org/packages/laragear/alerts) [![Latest stable test run](https://github.com/Laragear/Alerts/workflows/Tests/badge.svg)](https://github.com/Laragear/Alerts/actions) [![Codecov coverage](https://codecov.io/gh/Laragear/Alerts/branch/1.x/graph/badge.svg?token=TOKEN)](https://codecov.io/gh/Laragear/Alerts) [![Maintainability]() [![Laravel Octane Compatibility](https://img.shields.io/badge/Laravel%20Octane-Compatible-success?style=flat&logo=laravel)](https://laravel.com/docs/9.x/octane#introduction)
 
 Set multiple alerts from your backend, render them in the frontend with any HTML.
 
