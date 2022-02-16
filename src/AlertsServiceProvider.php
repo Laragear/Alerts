@@ -2,7 +2,7 @@
 
 namespace Laragear\Alerts;
 
-use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
@@ -23,17 +23,17 @@ class AlertsServiceProvider extends ServiceProvider
 
         $this->app->singleton(RendererManager::class);
 
-        $this->app->singleton(Contracts\Renderer::class, static function (Container $app): Contracts\Renderer {
+        $this->app->singleton(Contracts\Renderer::class, static function (Application $app): Contracts\Renderer {
             return $app->make(RendererManager::class)->driver($app->make('config')->get('alerts.renderer'));
         });
 
-        $this->app->singleton(Bag::class, static function (Container $app): Bag {
+        $this->app->singleton(Bag::class, static function (Application $app): Bag {
             return new Bag((array) $app->make('config')->get('alerts.tags', ['default']));
         });
 
         $this->app->bind(
             Http\Middleware\StoreAlertsInSession::class,
-            static function (Container $app): Http\Middleware\StoreAlertsInSession {
+            static function (Application $app): Http\Middleware\StoreAlertsInSession {
                 return new Http\Middleware\StoreAlertsInSession(
                     $app->make(Bag::class),
                     $app->make('config')->get('alerts.key')
