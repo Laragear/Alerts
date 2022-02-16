@@ -29,7 +29,6 @@ use Laragear\Alerts\Testing\Fakes\BagFake;
  * @method static \Laragear\Alerts\Alert action(string $replace, string|array $action, array $parameters = [], bool $blank = false)
  * @method static \Laragear\Alerts\Alert tags(string ...$tags)
  * @method static \Laragear\Alerts\Alert fromJson(string $alert, int $options = 0)
- *
  * @method static \Laragear\Alerts\Bag getFacadeRoot()
  */
 class Alert extends Facade
@@ -52,7 +51,7 @@ class Alert extends Facade
     public static function fake(): BagFake
     {
         $fake = static::getFacadeApplication()->make(BagFake::class, [
-            'tags' => Arr::wrap(Config::get('alerts.tags'))
+            'tags' => Arr::wrap(Config::get('alerts.tags')),
         ]);
 
         static::swap($fake);

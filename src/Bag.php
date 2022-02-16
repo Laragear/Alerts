@@ -2,14 +2,14 @@
 
 namespace Laragear\Alerts;
 
+use function array_key_last;
 use Closure;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Macroable;
-use function array_key_last;
 use function is_iterable;
 use function json_decode;
-use function value;
 use const JSON_THROW_ON_ERROR;
+use function value;
 
 /**
  * @mixin \Laragear\Alerts\Alert
@@ -78,7 +78,7 @@ class Bag
      */
     public function add(Alert|iterable $alert): static
     {
-        if (!is_iterable($alert)) {
+        if (! is_iterable($alert)) {
             $alert = [$alert];
         }
 
@@ -131,13 +131,14 @@ class Bag
      * Abandons a persisted Alert.
      *
      * @param  string  $key
-     * @return bool  Returns true if successful.
+     * @return bool Returns true if successful.
      */
     public function abandon(string $key): bool
     {
         if (null !== $index = $this->whichPersistent($key)) {
             $this->alerts->forget($index);
             unset($this->persisted[$key]);
+
             return true;
         }
 
@@ -204,6 +205,7 @@ class Bag
      * @param  string  $alert
      * @param  int  $options
      * @return \Laragear\Alerts\Alert
+     *
      * @throws \JsonException
      */
     public function fromJson(string $alert, int $options = 0): Alert
@@ -217,6 +219,7 @@ class Bag
      * Pass through all calls to a new Alert.
      *
      * @codeCoverageIgnore
+     *
      * @param  string  $method
      * @param  array  $parameters
      * @return \Laragear\Alerts\Alert

@@ -2,15 +2,15 @@
 
 namespace Laragear\Alerts\Renderers;
 
-use Illuminate\Support\Arr;
-use Laragear\Alerts\Alert;
 use function array_column;
 use function array_map;
 use function array_merge;
 use function array_push;
 use function array_unique;
 use function defined;
+use Illuminate\Support\Arr;
 use function implode;
+use Laragear\Alerts\Alert;
 
 trait CompilesAlert
 {
@@ -18,7 +18,6 @@ trait CompilesAlert
      * Prepares the alert array.
      *
      * @param  \Laragear\Alerts\Alert  $alert
-     *
      * @return object
      */
     public function compileAlert(Alert $alert): object
@@ -41,7 +40,7 @@ trait CompilesAlert
         return str_replace(
             array_map(
                 static function (string $replace): string {
-                    return '{' . $replace . '}';
+                    return '{'.$replace.'}';
                 }, array_column($alert->getLinks(), 'replace')
             ),
             array_map(static function (object $link): string {

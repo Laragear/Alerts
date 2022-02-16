@@ -2,12 +2,12 @@
 
 namespace Tests\Http\Middleware;
 
+use function alert;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithViews;
 use Illuminate\Support\Facades\Route;
 use Laragear\Alerts\Http\Middleware\StoreAlertsInSession;
-use Tests\TestCase;
-use function alert;
 use function redirect;
+use Tests\TestCase;
 
 class StoreAlertsInSessionTest extends TestCase
 {
@@ -17,6 +17,7 @@ class StoreAlertsInSessionTest extends TestCase
     {
         $router->get('no-session', function () {
             alert()->message('foo')->persistAs('foo.bar');
+
             return 'ok';
         })->middleware(StoreAlertsInSession::class);
     }
@@ -25,22 +26,26 @@ class StoreAlertsInSessionTest extends TestCase
     {
         $router->get('foo', function () {
             alert('foo');
+
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
 
         $router->get('bar', function () {
             alert('bar');
+
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
 
         $router->get('empty', function () {
             alert()->message('');
+
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
 
         $router->get('persist', function () {
             alert()->message('foo');
             alert()->message('foo')->persistAs('foo.bar');
+
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
 
@@ -50,12 +55,14 @@ class StoreAlertsInSessionTest extends TestCase
 
         $router->get('redirect', function () {
             alert()->message('redirected');
+
             return redirect()->to('no-alert');
         })->middleware('web');
 
         $router->get('redirect-with-both', function () {
             alert()->message('redirected');
             alert()->message('redirect persisted')->persistAs('foo.bar');
+
             return redirect()->to('no-alert');
         })->middleware('web');
     }
@@ -74,10 +81,10 @@ class StoreAlertsInSessionTest extends TestCase
 
         static::assertEquals('<div class="container"><div class="alerts">
         <div class="alert" role="alert">
-' . '    ' . '
+'.'    '.'
     </div>
     </div>
-</div>'     ,
+</div>',
             $response->getContent()
         );
     }
@@ -219,6 +226,7 @@ VIEW
         Route::get('persist')->uses(function () {
             alert()->message('foo')->types('success')->persistAs('foo.bar');
             alert()->message('bar')->persistAs('foo.bar');
+
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
 
@@ -240,11 +248,13 @@ VIEW
     {
         Route::get('first')->uses(function () {
             alert()->message('foo')->types('success')->persistAs('foo.bar');
+
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
 
         Route::get('second')->uses(function () {
             alert()->message('bar')->persistAs('foo.bar');
+
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
 
@@ -267,11 +277,13 @@ VIEW,
     {
         Route::get('first')->uses(function () {
             alert()->message('foo')->types('success')->persistAs('foo.bar');
+
             return redirect('/second');
         })->middleware('web');
 
         Route::get('second')->uses(function () {
             alert()->message('bar')->persistAs('foo.bar');
+
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
 

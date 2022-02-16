@@ -9,8 +9,8 @@ use Illuminate\Support\ServiceProvider;
 
 class AlertsServiceProvider extends ServiceProvider
 {
-    public const CONFIG = __DIR__ . '/../config/alerts.php';
-    public const VIEWS = __DIR__ . '/../resources/views';
+    public const CONFIG = __DIR__.'/../config/alerts.php';
+    public const VIEWS = __DIR__.'/../resources/views';
 
     /**
      * Register the application services.
@@ -47,7 +47,6 @@ class AlertsServiceProvider extends ServiceProvider
      *
      * @param  \Illuminate\Foundation\Http\Kernel  $http
      * @param  \Illuminate\Routing\Router  $router
-     *
      * @return void
      */
     public function boot(Kernel $http, Router $router): void
