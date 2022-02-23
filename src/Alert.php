@@ -2,20 +2,18 @@
 
 namespace Laragear\Alerts;
 
-use function action;
 use Countable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Traits\Macroable;
-use function is_array;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
-use function json_encode;
 use JsonSerializable;
-use function route;
+use Stringable;
+use function is_array;
+use function json_encode;
 use function sort;
 use function strcmp;
-use Stringable;
 use function trans;
 use function trim;
 use function url;
@@ -319,7 +317,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
      */
     public function route(string $replace, string $name, array $parameters = [], bool $blank = false): static
     {
-        return $this->away($replace, route($name, $parameters), $blank);
+        return $this->away($replace, url()->route($name, $parameters), $blank);
     }
 
     /**
@@ -333,7 +331,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
      */
     public function action(string $replace, string|array $action, array $parameters = [], bool $blank = false): static
     {
-        return $this->away($replace, action($action, $parameters), $blank);
+        return $this->away($replace, url()->action($action, $parameters), $blank);
     }
 
     /**
