@@ -24,7 +24,7 @@
         "issues": "https://github.com/laragear/alerts/issues"
     },
     "require": {
-        "php": "^8.0||^8.1",
+        "php": "^8.0.2",
         "ext-json": "*",
         "illuminate/config": "9.*",
         "illuminate/http": "9.*",
