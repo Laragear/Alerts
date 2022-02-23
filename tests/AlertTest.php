@@ -2,12 +2,12 @@
 
 namespace Tests;
 
+use function alert;
+use function app;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\URL;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
-use function alert;
-use function app;
 
 class AlertTest extends TestCase
 {
