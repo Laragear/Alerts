@@ -2,12 +2,12 @@
 
 namespace Tests;
 
-use function alert;
-use function app;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\URL;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
+use function alert;
+use function app;
 
 class AlertTest extends TestCase
 {
@@ -111,7 +111,7 @@ class AlertTest extends TestCase
     public function test_alert_receives_link_route(): void
     {
         URL::shouldReceive('route')
-            ->with('test', [], true)
+            ->with('test', [])
             ->andReturn('http://localhost/test');
 
         $alert = alert()->new()->message('foo {bar} baz')->route('bar', 'test');
@@ -125,7 +125,7 @@ class AlertTest extends TestCase
     public function test_alert_receives_link_action(): void
     {
         URL::shouldReceive('action')
-            ->with('DummyController@action', [], true)
+            ->with('DummyController@action', [])
             ->andReturn('http://localhost/test');
 
         $alert = alert()->new()->message('foo {bar} baz')->action('bar', 'DummyController@action');

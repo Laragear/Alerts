@@ -2,17 +2,15 @@
 
 namespace Laragear\Alerts\Testing;
 
-use function action;
 use Countable;
 use Illuminate\Support\Collection;
 use Illuminate\Testing\Assert as PHPUnit;
-use function in_array;
-use function is_array;
-use function is_string;
 use JetBrains\PhpStorm\Pure;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Testing\Fakes\BagFake;
-use function route;
+use function in_array;
+use function is_array;
+use function is_string;
 use function sort;
 use function strcmp;
 use function trans;
@@ -149,7 +147,7 @@ class Builder
      */
     public function withRoute(string $replace, string $name, array $parameters = [], bool $blank = false): static
     {
-        return $this->withAway($replace, route($name, $parameters), $blank);
+        return $this->withAway($replace, url()->route($name, $parameters), $blank);
     }
 
     /**
@@ -163,7 +161,7 @@ class Builder
      */
     public function withAction(string $replace, string|array $action, array $parameters = [], bool $blank = false): static
     {
-        return $this->withAway($replace, action($action, $parameters), $blank);
+        return $this->withAway($replace, url()->action($action, $parameters), $blank);
     }
 
     /**

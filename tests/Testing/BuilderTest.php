@@ -2,13 +2,13 @@
 
 namespace Tests\Testing;
 
-use function e;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\URL;
 use Laragear\Alerts\Facades\Alert;
 use Laragear\Alerts\Testing\Fakes\BagFake;
 use PHPUnit\Framework\AssertionFailedError;
 use Tests\TestCase;
+use function e;
 
 class BuilderTest extends TestCase
 {
@@ -228,7 +228,7 @@ class BuilderTest extends TestCase
 
     public function test_filters_by_link_route(): void
     {
-        URL::shouldReceive('route')->with('foo', [], true)->twice()->andReturn('bar');
+        URL::shouldReceive('route')->with('foo', [])->twice()->andReturn('bar');
 
         Alert::raw('foo.bar')->route('bar', 'foo');
 
@@ -240,8 +240,8 @@ class BuilderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
 
-        URL::shouldReceive('route')->with('foo', [], true)->once()->andReturn('bar');
-        URL::shouldReceive('route')->with('bar', [], true)->once()->andReturn('bar');
+        URL::shouldReceive('route')->with('foo', [])->once()->andReturn('bar');
+        URL::shouldReceive('route')->with('bar', [])->once()->andReturn('bar');
 
         Alert::raw('foo.bar')->route('bar', 'foo');
 
@@ -250,7 +250,7 @@ class BuilderTest extends TestCase
 
     public function test_filters_by_link_action(): void
     {
-        URL::shouldReceive('action')->with('foo', [], true)->twice()->andReturn('bar');
+        URL::shouldReceive('action')->with('foo', [])->twice()->andReturn('bar');
 
         Alert::raw('foo.bar')->action('bar', 'foo');
 
@@ -262,8 +262,8 @@ class BuilderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
 
-        URL::shouldReceive('action')->with('foo', [], true)->once()->andReturn('bar');
-        URL::shouldReceive('action')->with('bar', [], true)->once()->andReturn('bar');
+        URL::shouldReceive('action')->with('foo', [])->once()->andReturn('bar');
+        URL::shouldReceive('action')->with('bar', [])->once()->andReturn('bar');
 
         Alert::raw('foo.bar')->action('bar', 'foo');
 
