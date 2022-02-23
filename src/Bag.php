@@ -2,14 +2,14 @@
 
 namespace Laragear\Alerts;
 
+use function array_key_last;
 use Closure;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Macroable;
-use function array_key_last;
 use function is_iterable;
 use function json_decode;
-use function value;
 use const JSON_THROW_ON_ERROR;
+use function value;
 
 /**
  * @mixin \Laragear\Alerts\Alert
