@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use BadMethodCallException;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\URL;
 use Laragear\Alerts\Alert;
@@ -230,5 +231,63 @@ class AlertTest extends TestCase
         $alert = (new Alert(app(Bag::class)))->message('foo')->types('bar');
 
         static::assertEquals('{"message":"foo","types":["bar"],"dismissible":false}', (string) $alert);
+    }
+
+    public function test_handle_calls_as_type_with_message(): void
+    {
+        $alert = alert()->new()->fooBarBaz('quz');
+
+        static::assertSame('quz', $alert->getMessage());
+        static::assertSame(['foo-bar-baz'], $alert->getTypes());
+    }
+
+    public function test_dynamic_call_type_respects_underscore(): void
+    {
+        $alert = alert()->new()->foo_bar_baz('quz');
+
+        static::assertSame(['foo_bar_baz'], $alert->getTypes());
+    }
+
+    public function test_handle_calls_as_type_with_translation(): void
+    {
+        Lang::shouldReceive('get')
+            ->once()
+            ->with('test-key', ['foo' => 'bar'], null)
+            ->andReturn('test-translation');
+
+        $alert = alert()->new()->fooBarQuz('test-key', ['foo' => 'bar']);
+
+        static::assertSame('test-translation', $alert->getMessage());
+        static::assertSame(['foo-bar-quz'], $alert->getTypes());
+
+        Lang::shouldReceive('get')
+            ->once()
+            ->with('test-key', ['foo' => 'bar'], 'test_lang')
+            ->andReturn('test-translation');
+
+        $alert = alert()->new()->fooBarQuz('test-key', ['foo' => 'bar'], 'test_lang');
+
+        static::assertSame('test-translation', $alert->getMessage());
+        static::assertSame(['foo-bar-quz'], $alert->getTypes());
+    }
+
+    public function test_exception_when_dynamic_call_has_no_arguments(): void
+    {
+        $this->expectException(BadMethodCallException::class);
+        $this->expectExceptionMessage(
+            'Call to undefined method Laragear\Alerts\Alert::fooBarQuz()'
+        );
+
+        alert()->new()->fooBarQuz();
+    }
+
+    public function test_exception_when_dynamic_call_has_more_than_3_arguments(): void
+    {
+        $this->expectException(BadMethodCallException::class);
+        $this->expectExceptionMessage(
+            'Call to undefined method Laragear\Alerts\Alert::fooBarQuz()'
+        );
+
+        alert()->new()->fooBarQuz('foo', 'bar', 'quz', 'qux');
     }
 }

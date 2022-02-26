@@ -4,7 +4,6 @@
 
 namespace Tests;
 
-use BadMethodCallException;
 use Laragear\Alerts\Bag;
 
 class BagTest extends TestCase
@@ -106,11 +105,11 @@ class BagTest extends TestCase
         static::assertCount(1, $this->bag->collect());
     }
 
-    public function test_exception_if_method_macro_doesnt_exists(): void
+    public function test_passes_method_to_alert_dynamic_type_set(): void
     {
-        $this->expectException(BadMethodCallException::class);
-        $this->expectExceptionMessage('Method Laragear\Alerts\Alert::nonexistent does not exist.');
+        $alert = $this->bag->nonexistent('foo');
 
-        $this->bag->nonexistent('foo');
+        static::assertSame('foo', $alert->getMessage());
+        static::assertSame(['nonexistent'], $alert->getTypes());
     }
 }

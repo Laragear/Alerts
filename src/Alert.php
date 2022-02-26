@@ -2,25 +2,29 @@
 
 namespace Laragear\Alerts;
 
+use BadMethodCallException;
 use Countable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
-use function is_array;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
-use function json_encode;
 use JsonSerializable;
+use Stringable;
+use function is_array;
+use function json_encode;
 use function sort;
 use function strcmp;
-use Stringable;
 use function trans;
 use function trim;
 use function url;
 
 class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
 {
-    use Macroable;
+    use Macroable {
+        __call as macroCall;
+    }
 
     /**
      * The internal key of this Alert in the bag.
@@ -439,6 +443,33 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
         $this->links = $data['links'];
         $this->dismissible = $data['dismissible'];
         $this->tags = $data['tags'];
+    }
+
+    /**
+     * Dynamically handle calls to this alert instance.
+     *
+     * @param  string  $method
+     * @param  array  $parameters
+     * @return static
+     */
+    public function __call(string $method, array $parameters)
+    {
+        // If the alert already has a macro with the same name of the method called,
+        // we will pass it to the macro and call it a day. Otherwise, we will pass
+        // the name as the alert unique type, and the parameters as the message.
+        if (static::hasMacro($method)) {
+            return $this->macroCall($method, $parameters);
+        }
+
+        $this->types(Str::snake($method, '-'));
+
+        return match(count($parameters)) {
+            1 => $this->message(...$parameters),
+            2,3 => $this->trans(...$parameters),
+            default => throw new BadMethodCallException(sprintf(
+                'Call to undefined method %s::%s()', static::class, $method
+            )),
+        };
     }
 
     /**
