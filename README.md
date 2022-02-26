@@ -101,14 +101,34 @@ If there is at least one Alert to be rendered, the above will be transformed int
 </div>
 ```
 
-### Message
-
-Add the text inside the Alert using the `message()` method. That's it.
+Alternatively, you can use the `type($message)` syntax right from the `Alert` facade or the `alert()` helper.
 
 ```php
 use Laragear\Alerts\Facades\Alert;
 
-Alert::message('You are gonna love this! 😍')->types('success');
+alert()->success('This was a triumph!');
+
+Alert::info("I'm making a note here: huge success.");
+```
+
+```html
+<div class="alert alert-success" role="alert">
+    This was a triumph!
+</div>
+
+<div class="alert alert-info" role="alert">
+    I'm making a note here: huge success.
+</div>
+``` 
+
+### Message
+
+You can use the `type($message)` syntax, or go for the classic route and add the text inside the Alert using the `message()` method.
+
+```php
+use Laragear\Alerts\Facades\Alert;
+
+Alert::success('You are gonna love this! 😍');
 
 Alert::message('We will email you 📨 a copy!')->types('info');
 ```
@@ -132,7 +152,7 @@ Since the `message()` method escapes the text for safety, you can use the `raw()
 ```php
 use Laragear\Alerts\Facades\Alert;
 
-Alert::message('This is <strong>FUBAR</strong>.')->types('warning');
+Alert::warning('This is <strong>FUBAR</strong>.');
 
 Alert::raw('But this is <strong>important</strong>.')->types('warning');
 ```
@@ -151,14 +171,14 @@ Alert::raw('But this is <strong>important</strong>.')->types('warning');
 
 ### Alert Type
 
-You can set an alert "type" by its name by just setting it with the `types()` method. It also accepts multiple types.
+You can set an alert "type" by its name by just using it as a method name. The `types()` method is preferred if you need to set more than one.
 
 ```php
 use Laragear\Alerts\Facades\Alert;
 
-Alert::message('Your message was sent!')->types('primary');
+Alert::primary('Your message was sent!');
 
-Alert::message('There is an unread message.')->types('info', 'fade');
+Alert::message('There is an unread message.')->types('info', 'cool');
 ```
 
 ```html
@@ -166,14 +186,14 @@ Alert::message('There is an unread message.')->types('info', 'fade');
     Your message was sent!
 </div>
 
-<div class="alert alert-info fade" role="alert">
+<div class="alert alert-info cool" role="alert">
     There is an unread message.
 </div>
 ```
 
-The types are just aliases for custom CSS classes and HTML, which are then translated by the Renderer to the proper code.
+The types are like _keywords_ that the underlying Renderer will use to transform the alert into proper HTML code.  
 
-> The Renderer receives the list of types and changes them into CSS classes accordingly. The default Bootstrap Renderer will set each unrecognized type as an additional CSS class.
+> The default Bootstrap Renderer will set each unrecognized type as an additional CSS class.
 
 ### Localization
 
@@ -182,7 +202,7 @@ To gracefully localize messages on the fly, use the `trans()` method, which is a
 ```php
 use Laragear\Alerts\Facades\Alert;
 
-Alert::trans('email.changed', ['email' => $email], 'es')->types('success');
+Alert::trans('email.changed', ['email' => $email], 'es')->success();
 ```
 
 ```html
@@ -196,9 +216,9 @@ You can also use `transChoice()` with the same parameters of [`trans_choice()`](
 ```php
 use Laragear\Alerts\Facades\Alert;
 
-Alert::transChoice('messages.apples', 1)->types('success');
+Alert::transChoice('messages.apples', 1)->success();
 
-Alert::transChoice('messages.apples', 10)->types('success');
+Alert::transChoice('messages.apples', 10)->success();
 ```
 
 ```html
@@ -213,12 +233,14 @@ Alert::transChoice('messages.apples', 10)->types('success');
 
 ### Dismiss
 
-Most of the frontend frameworks have alerts or notifications that can be dismissible, but require adding more than a single class to allow for interactivity. You can set an alert to be dismissible using `dismiss()`.
+Most of the frontend frameworks have alerts or notifications that can be dismissible, but require adding more than a single class to allow for interactivity. 
+
+You can set an alert to be dismissible using `dismiss()`, signaling the Renderer to make the modification necessary to be dismissible.
 
 ```php
 use Laragear\Alerts\Facades\Alert;
 
-Alert::message('You can disregard this')->type('success')->dismiss();
+Alert::success('You can disregard this')->dismiss();
 ```
 
 If you want to change your mind, you can use `dismiss(false)`:
@@ -226,7 +248,7 @@ If you want to change your mind, you can use `dismiss(false)`:
 ```php
 use Laragear\Alerts\Facades\Alert;
 
-Alert::message('You can disregard this')->type('success')->dismiss(false);
+Alert::success('You can disregard this')->dismiss(false);
 ```
 
 How the dismissible alert is transformed into code will depend on the renderer itself. The default Bootstrap renderer adds the proper CSS classes and a dismiss button automatically.
@@ -247,12 +269,10 @@ use Illuminate\Support\Facades\Auth;
 use Laragear\Alerts\Facades\Alert;
 
 Alert::when(Auth::check())
-    ->message('You are authenticated')
-    ->types('success');
+    ->success('You are authenticated');
 
 Alert::unless(Auth::user()->mailbox()->isNotEmpty())
-       ->message('You have messages in your inbox')
-       ->types('warning');
+       ->warning('You have messages in your inbox');
 ```
 
 ### Persistent Alerts
@@ -264,7 +284,7 @@ To make any alert persistent you can use the `persistAs()` method with a key to 
 ```php
 use Laragear\Alerts\Facades\Alert;
 
-Alert::message('Your disk size is almost full')->types('danger')->persistAs('disk.full');
+Alert::danger('Your disk size is almost full')->persistAs('disk.full');
 ```
 
 > Setting a persistent alert replaces any previous set with the same key. 
@@ -286,8 +306,7 @@ Setting up links for an alert doesn't have to be cumbersome. You can easily repl
 ```php
 use Laragear\Alerts\Facades\Alert;
 
-Alert::message('Remember, you can follow your order in your {dashboard}.')
-    ->types('success')
+Alert::success('Remember, you can follow your order in your {dashboard}.')
     ->to('dashboard', '/dashboard/orders')
 ```
 
@@ -324,8 +343,7 @@ You can set the tags of the Alert using `tag()`.
 ```php
 use Laragear\Alerts\Facades\Alert;
 
-Alert::message('Maintenance is scheduled for tomorrow')
-    ->type('warning')
+Alert::warning('Maintenance is scheduled for tomorrow')
     ->tag('user', 'admin')
 ```
 
@@ -341,7 +359,7 @@ Using the [Alerts directive](#quickstart), you can filter the Alerts to render b
 
 ## Configuration
 
-Alerts works out-of-the-box with some common defaults, but if you need a better approach for your particular application, you can configure some parameters. First, publish the configuration file.
+Alerts will work out-of-the-box with some common defaults, but if you need a better approach for your particular application, you can configure some parameters. First, publish the configuration file.
 
 ```bash
 php artisan vendor:publish --provider="Laragear\Alerts\AlertsServiceProvider" --tag="config"
@@ -437,11 +455,11 @@ When you issue an alert, the alert will be rendered using your own custom render
 ```php
 use Laragear\Alerts\Facades\Alert;
 
-Alert::message('Popping colors!')->types('primary');
+Alert::default('Popping colors!');
 ```
 
 ```html
-<div class="notification type-primary">
+<div class="bg-slate-100 rounded-xl p-8 dark:bg-slate-800">
     Popping colors!
 </div> 
 ```
