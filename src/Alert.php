@@ -15,6 +15,7 @@ use Stringable;
 use function is_array;
 use function json_encode;
 use function sort;
+use function sprintf;
 use function strcmp;
 use function trans;
 use function trim;
@@ -456,20 +457,16 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     {
         // If the alert already has a macro with the same name of the method called,
         // we will pass it to the macro and call it a day. Otherwise, we will pass
-        // the name as the alert unique type, and the parameters as the message.
+        // the name as the alert unique type and the parameter 0 as the message.
         if (static::hasMacro($method)) {
             return $this->macroCall($method, $parameters);
         }
 
-        $this->types(Str::snake($method, '-'));
+        if (count($parameters) === 1) {
+            return $this->types(Str::snake($method, '-'))->message($parameters[0]);
+        }
 
-        return match(count($parameters)) {
-            1 => $this->message(...$parameters),
-            2,3 => $this->trans(...$parameters),
-            default => throw new BadMethodCallException(sprintf(
-                'Call to undefined method %s::%s()', static::class, $method
-            )),
-        };
+        throw new BadMethodCallException(sprintf('Method %s::%s does not exist.', static::class, $method));
     }
 
     /**

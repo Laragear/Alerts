@@ -2,13 +2,13 @@
 
 namespace Tests;
 
-use function alert;
-use function app;
 use BadMethodCallException;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\URL;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
+use function alert;
+use function app;
 
 class AlertTest extends TestCase
 {
@@ -248,46 +248,11 @@ class AlertTest extends TestCase
         static::assertSame(['foo_bar_baz'], $alert->getTypes());
     }
 
-    public function test_handle_calls_as_type_with_translation(): void
-    {
-        Lang::shouldReceive('get')
-            ->once()
-            ->with('test-key', ['foo' => 'bar'], null)
-            ->andReturn('test-translation');
-
-        $alert = alert()->new()->fooBarQuz('test-key', ['foo' => 'bar']);
-
-        static::assertSame('test-translation', $alert->getMessage());
-        static::assertSame(['foo-bar-quz'], $alert->getTypes());
-
-        Lang::shouldReceive('get')
-            ->once()
-            ->with('test-key', ['foo' => 'bar'], 'test_lang')
-            ->andReturn('test-translation');
-
-        $alert = alert()->new()->fooBarQuz('test-key', ['foo' => 'bar'], 'test_lang');
-
-        static::assertSame('test-translation', $alert->getMessage());
-        static::assertSame(['foo-bar-quz'], $alert->getTypes());
-    }
-
-    public function test_exception_when_dynamic_call_has_no_arguments(): void
+    public function test_exception_when_dynamic_call_has_more_than_one_argument(): void
     {
         $this->expectException(BadMethodCallException::class);
-        $this->expectExceptionMessage(
-            'Call to undefined method Laragear\Alerts\Alert::fooBarQuz()'
-        );
+        $this->expectExceptionMessage('Method Laragear\Alerts\Alert::fooBarQuz does not exist');
 
-        alert()->new()->fooBarQuz();
-    }
-
-    public function test_exception_when_dynamic_call_has_more_than_3_arguments(): void
-    {
-        $this->expectException(BadMethodCallException::class);
-        $this->expectExceptionMessage(
-            'Call to undefined method Laragear\Alerts\Alert::fooBarQuz()'
-        );
-
-        alert()->new()->fooBarQuz('foo', 'bar', 'quz', 'qux');
+        alert()->new()->fooBarQuz('foo', 'bar');
     }
 }
