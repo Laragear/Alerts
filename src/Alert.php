@@ -8,15 +8,15 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
-use function is_array;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
-use function json_encode;
 use JsonSerializable;
+use Stringable;
+use function is_array;
+use function json_encode;
 use function sort;
 use function sprintf;
 use function strcmp;
-use Stringable;
 use function trans;
 use function trim;
 use function url;
@@ -462,8 +462,8 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
             return $this->macroCall($method, $parameters);
         }
 
-        if (count($parameters) === 1) {
-            return $this->types(Str::snake($method, '-'))->message($parameters[0]);
+        if (count($parameters) < 2) {
+            return $this->types(Str::snake($method, '-'))->message($parameters[0] ?? '');
         }
 
         throw new BadMethodCallException(sprintf('Method %s::%s does not exist.', static::class, $method));

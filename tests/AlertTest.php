@@ -241,6 +241,14 @@ class AlertTest extends TestCase
         static::assertSame(['foo-bar-baz'], $alert->getTypes());
     }
 
+    public function test_dynamic_call_without_arguments_sets_type_with_empty_message(): void
+    {
+        $alert = alert()->new()->fooBarBaz();
+
+        static::assertEmpty($alert->getMessage());
+        static::assertSame(['foo-bar-baz'], $alert->getTypes());
+    }
+
     public function test_dynamic_call_type_respects_underscore(): void
     {
         $alert = alert()->new()->foo_bar_baz('quz');
