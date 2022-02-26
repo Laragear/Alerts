@@ -8,14 +8,14 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
+use function is_array;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
-use JsonSerializable;
-use Stringable;
-use function is_array;
 use function json_encode;
+use JsonSerializable;
 use function sort;
 use function strcmp;
+use Stringable;
 use function trans;
 use function trim;
 use function url;
@@ -463,7 +463,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
 
         $this->types(Str::snake($method, '-'));
 
-        return match(count($parameters)) {
+        return match (count($parameters)) {
             1 => $this->message(...$parameters),
             2,3 => $this->trans(...$parameters),
             default => throw new BadMethodCallException(sprintf(
