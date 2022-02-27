@@ -20,7 +20,7 @@ class BootstrapRenderer implements Renderer
     /**
      * Class translation table for known types.
      *
-     * @var array|string[]
+     * @var array<string, string|array<int, string>>
      */
     protected const TYPE_CLASSES = [
         'primary'   => 'alert-primary',

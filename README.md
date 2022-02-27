@@ -38,7 +38,7 @@ If you don't have anything to start with in your frontend, you can use [Laravel 
 
 This package allows you to set a list of Alerts in your application and render them in the frontend in just a few minutes.
 
-The default renderer uses Bootstrap styles to transform each alert into [Bootstrap Alerts](https://getbootstrap.com/docs/5.1/components/alerts/). If you're not using Bootstrap, you can [create your own](#creating-a-custom-renderer) for your particular framework.
+The default renderer uses [Bootstrap 5](https://getbootstrap.com) styles to transform each alert into [alerts](https://getbootstrap.com/docs/5.1/components/alerts/). If you're using [Tailwind CSS](https://tailwindcss.com), you can use the included Tailwind renderer by [changing the configuration](#renderer). Alternatively, you may [create your own renderer](#creating-a-custom-renderer) for your particular framework.
 
 ### Quickstart
 
@@ -385,9 +385,9 @@ return [
 ];
 ```
 
-This picks the Renderer to use when transforming Alerts into HTML.
+This picks the Renderer to use when transforming Alerts metadata into HTML.
 
-This package ships with Bootstrap 5 renderer, but you can [create your own](#renderers) for other frontend frameworks like [Bulma.io](https://bulma.io/), [UI kit](https://getuikit.com/), [TailwindCSS](https://tailwindcss.com/) and [INK](http://ink.sapo.pt/), or even your own custom frontend framework.
+This package ships with [Bootstrap 5](https://getbootstrap.com) and [Tailwind CSS](https://tailwindcss.com/) renderers, but you can [create your own](#renderers) for other frontend frameworks like [Bulma.io](https://bulma.io/), [UI kit](https://getuikit.com/), [INK](http://ink.sapo.pt/), or even your own custom frontend framework.
 
 ### Session Key
 

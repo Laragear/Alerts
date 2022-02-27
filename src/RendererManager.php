@@ -32,4 +32,16 @@ class RendererManager extends Manager
     {
         return new Renderers\BootstrapRenderer($this->container->make(Factory::class));
     }
+
+    /**
+     * Creates a Tailwind CSS renderer.
+     *
+     * @return \Laragear\Alerts\Contracts\Renderer
+     *
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    protected function createBootstrapDriver(): Contracts\Renderer
+    {
+        return new Renderers\TailwindRenderer($this->container->make(Factory::class));
+    }
 }
