@@ -17,7 +17,7 @@ class TailwindRenderer implements Renderer
      */
     protected const VIEW = 'alerts::tailwind.container';
 
-        /**
+    /**
      * Class translation table for known types.
      *
      * @var array<string, string|array<int, string>>
