@@ -2,13 +2,13 @@
 
 namespace Laragear\Alerts\Http\Middleware;
 
-use function array_merge;
 use Closure;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\Request;
-use function in_array;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
+use function array_merge;
+use function in_array;
 
 class StoreAlertsInSession
 {

@@ -2,13 +2,13 @@
 
 namespace Tests\Blade\Components;
 
-use function alert;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithViews;
 use Illuminate\Support\Collection;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
 use Laragear\Alerts\Contracts\Renderer;
 use Tests\TestCase;
+use function alert;
 
 class ContainerTest extends TestCase
 {
