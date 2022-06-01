@@ -2,12 +2,12 @@
 
 namespace Tests\Http\Middleware;
 
-use function alert;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithViews;
 use Illuminate\Support\Facades\Route;
 use Laragear\Alerts\Http\Middleware\StoreAlertsInSession;
-use function redirect;
 use Tests\TestCase;
+use function alert;
+use function redirect;
 
 class StoreAlertsInSessionTest extends TestCase
 {
