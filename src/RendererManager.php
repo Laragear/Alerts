@@ -18,7 +18,7 @@ class RendererManager extends Manager
      */
     public function getDefaultDriver(): string
     {
-        return $this->config->get('alerts.default');
+        return $this->config->get('alerts.default', 'bootstrap');
     }
 
     /**
@@ -40,7 +40,7 @@ class RendererManager extends Manager
      *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    protected function createBootstrapDriver(): Contracts\Renderer
+    protected function createTailwindDriver(): Contracts\Renderer
     {
         return new Renderers\TailwindRenderer($this->container->make(Factory::class));
     }
