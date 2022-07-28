@@ -20,12 +20,12 @@ class RendererManagerTest extends TestCase
     {
         static::assertInstanceOf(BootstrapRenderer::class, $this->app->make(RendererManager::class)->driver());
     }
-    
+
     public function test_gets_tailwind_css_renderer(): void
     {
         static::assertInstanceOf(TailwindRenderer::class, $this->app->make(RendererManager::class)->driver('tailwind'));
     }
-    
+
     public function test_gets_tailwind_css_renderer_as_default(): void
     {
         $this->app->make('config')->set('alerts.default', 'tailwind');
