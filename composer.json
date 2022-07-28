@@ -37,7 +37,8 @@
     "require-dev": {
         "orchestra/testbench": "7.*",
         "mockery/mockery": "^1.5",
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^9.5",
+        "jetbrains/phpstorm-attributes": "*"
     },
     "autoload": {
         "psr-4": {

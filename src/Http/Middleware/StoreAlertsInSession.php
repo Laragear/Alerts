@@ -2,13 +2,13 @@
 
 namespace Laragear\Alerts\Http\Middleware;
 
-use function array_merge;
 use Closure;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\Request;
-use function in_array;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
+use function array_merge;
+use function in_array;
 
 class StoreAlertsInSession
 {
@@ -88,6 +88,7 @@ class StoreAlertsInSession
         // This way we allow the next response from the app to have these alerts
         // alive for rendering without having to manually flash them after.
         if ($isRedirection && $nonPersistent->isNotEmpty()) {
+            // @phpstan-ignore-next-line
             $session->flash("$this->key.alerts", $nonPersistent->all());
         }
 

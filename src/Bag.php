@@ -2,14 +2,14 @@
 
 namespace Laragear\Alerts;
 
-use function array_key_last;
 use Closure;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Macroable;
+use function array_key_last;
 use function is_iterable;
 use function json_decode;
-use const JSON_THROW_ON_ERROR;
 use function value;
+use const JSON_THROW_ON_ERROR;
 
 /**
  * @mixin \Laragear\Alerts\Alert
@@ -74,7 +74,7 @@ class Bag
      * Adds an Alert into the bag.
      *
      * @param  \Laragear\Alerts\Alert|iterable  $alert
-     * @return \Laragear\Alerts\Bag
+     * @return $this
      */
     public function add(Alert|iterable $alert): static
     {

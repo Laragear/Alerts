@@ -5,12 +5,12 @@ namespace Laragear\Alerts\Testing;
 use Countable;
 use Illuminate\Support\Collection;
 use Illuminate\Testing\Assert as PHPUnit;
-use function in_array;
-use function is_array;
-use function is_string;
 use JetBrains\PhpStorm\Pure;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Testing\Fakes\BagFake;
+use function in_array;
+use function is_array;
+use function is_string;
 use function sort;
 use function strcmp;
 use function trans;
@@ -296,6 +296,7 @@ class Builder
 
         if ($this->persisted !== null) {
             if (is_string($this->persisted)) {
+                // @phpstan-ignore-next-line
                 return $this->persisted === $alert->getPersistKey();
             }
 
@@ -316,7 +317,7 @@ class Builder
     /**
      * Expect an alert persisted with the issued key.
      *
-     * @param  string|array  $key
+     * @param  string  ...$key
      * @return void
      */
     public function persistedAs(string ...$key): void
