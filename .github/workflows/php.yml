@@ -4,8 +4,6 @@ name: Tests
 
 on:
   push:
-    branches:
-      - "feat/improve-ci" ## TODO: change the branch before the PR.
   pull_request:
 
 jobs:
