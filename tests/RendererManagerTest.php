@@ -18,12 +18,12 @@ class RendererManagerTest extends TestCase
 
     public function test_gets_default_renderer(): void
     {
-        static::assertInstanceOf(BootstrapRenderer::class, $this->app->make(RendererManager::class)->driver())
+        static::assertInstanceOf(BootstrapRenderer::class, $this->app->make(RendererManager::class)->driver());
     }
     
     public function test_gets_tailwind_css_renderer(): void
     {
-        static::assertInstanceOf(TailwindRenderer::class, $this->app->make(RendererManager::class)->driver('tailwind'))
+        static::assertInstanceOf(TailwindRenderer::class, $this->app->make(RendererManager::class)->driver('tailwind'));
     }
     
     public function test_gets_tailwind_css_renderer_as_default(): void
@@ -31,6 +31,6 @@ class RendererManagerTest extends TestCase
         $this->app->make('config')->set('alerts.default', 'tailwind');
 
         static::assertSame('tailwind', $this->app->make(RendererManager::class)->getDefaultDriver());
-        static::assertInstanceOf(TailwindRenderer::class, $this->app->make(RendererManager::class)->driver('tailwind'))
+        static::assertInstanceOf(TailwindRenderer::class, $this->app->make(RendererManager::class)->driver('tailwind'));
     }
 }
