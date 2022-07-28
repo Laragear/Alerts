@@ -2,10 +2,10 @@
 
 namespace Tests\Renderers;
 
+use function alert;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithViews;
 use Laragear\Alerts\Bag;
 use Tests\TestCase;
-use function alert;
 
 class TailwindRendererTest extends TestCase
 {
