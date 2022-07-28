@@ -296,6 +296,7 @@ class Builder
 
         if ($this->persisted !== null) {
             if (is_string($this->persisted)) {
+                // @phpstan-ignore-next-line
                 return $this->persisted === $alert->getPersistKey();
             }
 
@@ -316,7 +317,7 @@ class Builder
     /**
      * Expect an alert persisted with the issued key.
      *
-     * @param  string|array  $key
+     * @param  string  ...$key
      * @return void
      */
     public function persistedAs(string ...$key): void

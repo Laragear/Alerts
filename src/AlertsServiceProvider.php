@@ -63,6 +63,7 @@ class AlertsServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->publishes([static::CONFIG => $this->app->configPath('alerts.php')], 'config');
+            // @phpstan-ignore-next-line
             $this->publishes([static::VIEWS => $this->app->viewPath('vendor/alerts')], 'views');
         }
     }

@@ -74,7 +74,7 @@ class Bag
      * Adds an Alert into the bag.
      *
      * @param  \Laragear\Alerts\Alert|iterable  $alert
-     * @return \Laragear\Alerts\Bag
+     * @return $this
      */
     public function add(Alert|iterable $alert): static
     {

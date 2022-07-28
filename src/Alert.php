@@ -47,7 +47,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
      * @param  bool  $dismissible
      * @param  array  $tags
      */
-    public function __construct(
+    final public function __construct(
         protected Bag $bag,
         protected ?string $persistKey = null,
         protected string $message = '',

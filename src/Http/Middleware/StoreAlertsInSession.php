@@ -88,6 +88,7 @@ class StoreAlertsInSession
         // This way we allow the next response from the app to have these alerts
         // alive for rendering without having to manually flash them after.
         if ($isRedirection && $nonPersistent->isNotEmpty()) {
+            // @phpstan-ignore-next-line
             $session->flash("$this->key.alerts", $nonPersistent->all());
         }
 
