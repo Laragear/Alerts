@@ -8,15 +8,15 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
-use function is_array;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
-use function json_encode;
 use JsonSerializable;
+use Stringable;
+use function is_array;
+use function json_encode;
 use function sort;
 use function sprintf;
 use function strcmp;
-use Stringable;
 use function trans;
 use function trim;
 use function url;
@@ -47,7 +47,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
      * @param  bool  $dismissible
      * @param  array  $tags
      */
-    public function __construct(
+    final public function __construct(
         protected Bag $bag,
         protected ?string $persistKey = null,
         protected string $message = '',
