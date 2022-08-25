@@ -52,6 +52,7 @@ jobs:
     strategy:
       matrix:
         php-version:
+          - "8.0"
           - "8.1"
         laravel-constrain:
           - "9.*"
@@ -90,8 +91,7 @@ jobs:
       - name: "Set up PHP"
         uses: "shivammathur/setup-php@v2"
         with:
-          php-version: "8.1"
-          tools: "phpstan"
+          php-version: "latest"
 
       - name: "Checkout code"
         uses: "actions/checkout@v3"
@@ -102,7 +102,10 @@ jobs:
       - name: "Install dependencies"
         uses: "ramsey/composer-install@v2"
         with:
-          dependency-versions: "highest"
+          dependency-versions: "${{ matrix.dependencies }}"
+
+      - name: "Execute unit tests"
+        run: "composer run-script test"
 
       - name: "Execute static analysis"
         run: "composer exec -- phpstan analyze -l 5 src/"
