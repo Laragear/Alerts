@@ -26,13 +26,13 @@
     "require": {
         "php": "^8.0.2",
         "ext-json": "*",
-        "illuminate/config": "9.*",
-        "illuminate/http": "9.*",
-        "illuminate/support": "9.*",
-        "illuminate/collections": "9.*",
-        "illuminate/session": "9.*",
-        "illuminate/view": "9.*",
-        "illuminate/routing": "9.*"
+        "illuminate/config": "^9.0|^10.0",
+        "illuminate/http": "^9.0|^10.0",
+        "illuminate/support": "^9.0|^10.0",
+        "illuminate/collections": "^9.0|^10.0",
+        "illuminate/session": "^9.0|^10.0",
+        "illuminate/view": "^9.0|^10.0",
+        "illuminate/routing": "^9.0|^10.0",
     },
     "require-dev": {
         "orchestra/testbench": "7.*",
