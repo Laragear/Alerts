@@ -2,13 +2,13 @@
 
 namespace Tests\Testing;
 
+use function e;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\URL;
 use Laragear\Alerts\Facades\Alert;
 use Laragear\Alerts\Testing\Fakes\BagFake;
 use PHPUnit\Framework\AssertionFailedError;
 use Tests\TestCase;
-use function e;
 
 class BuilderTest extends TestCase
 {
