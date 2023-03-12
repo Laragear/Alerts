@@ -5,12 +5,12 @@ namespace Laragear\Alerts\Testing;
 use Countable;
 use Illuminate\Support\Collection;
 use Illuminate\Testing\Assert as PHPUnit;
-use function in_array;
-use function is_array;
-use function is_string;
 use JetBrains\PhpStorm\Pure;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Testing\Fakes\BagFake;
+use function in_array;
+use function is_array;
+use function is_string;
 use function sort;
 use function strcmp;
 use function trans;
@@ -27,7 +27,7 @@ class Builder
      * @param  string|null  $message
      * @param  string[]|null  $types
      * @param  bool|null  $dismiss
-     * @param  string[]|bool|null  $persisted
+     * @param  string[]|bool|null|string  $persisted
      * @param  string[]|null  $tags
      * @param  string[]|null  $links
      * @param  bool  $anyTag
@@ -37,7 +37,7 @@ class Builder
         protected ?string $message = null,
         protected ?array $types = null,
         protected ?bool $dismiss = null,
-        protected array|bool|null $persisted = null,
+        protected array|bool|null|string $persisted = null,
         protected ?array $tags = null,
         protected ?array $links = null,
         protected bool $anyTag = false,
@@ -296,7 +296,6 @@ class Builder
 
         if ($this->persisted !== null) {
             if (is_string($this->persisted)) {
-                // @phpstan-ignore-next-line
                 return $this->persisted === $alert->getPersistKey();
             }
 
