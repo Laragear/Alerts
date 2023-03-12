@@ -21,8 +21,8 @@ Your support allows me to keep this package free, up-to-date and maintainable. A
 
 ## Requirements
 
-* Laravel 9.x or later
-* PHP 8.0 or later.
+* PHP 8 or later.
+* Laravel 9, 10 or later
 
 ## Installation
 
@@ -38,7 +38,7 @@ If you don't have anything to start with in your frontend, you can use [Laravel 
 
 This package allows you to set a list of Alerts in your application and render them in the frontend in just a few minutes.
 
-The default renderer uses [Bootstrap 5](https://getbootstrap.com) styles to transform each alert into [alerts](https://getbootstrap.com/docs/5.1/components/alerts/). If you're using [Tailwind CSS](https://tailwindcss.com), you can use the included Tailwind renderer by [changing the configuration](#renderer). Alternatively, you may [create your own renderer](#creating-a-custom-renderer) for your particular framework.
+The default renderer uses [Bootstrap 5](https://getbootstrap.com) styles to transform each alert into [alerts](https://getbootstrap.com/docs/5.3/components/alerts/). If you're using [Tailwind CSS](https://tailwindcss.com), you can use the included Tailwind renderer by [changing the configuration](#renderer). Alternatively, you may [create your own renderer](#creating-a-custom-renderer) for your particular framework.
 
 ### Quickstart
 
@@ -277,7 +277,7 @@ Alert::unless(Auth::user()->mailbox()->isNotEmpty())
 
 ### Persistent Alerts
 
-Alerts only last for the actual response being sent. On redirects, these are [flashed into the session](https://laravel.com/docs/session#flash-data) so these are available on the next request (the redirection target).
+Alerts only last for the actual response being sent. On redirects, these are [flashed into the session](https://laravel.com/docs/10.x/session#flash-data) so these are available on the next request (the redirection target).
 
 To make any alert persistent you can use the `persistAs()` method with a key to identify the alert.
 
@@ -413,7 +413,7 @@ This holds the default tag list to inject to all Alerts when created. You can le
 
 ## Renderers
 
-A Renderer takes a [collection](https://laravel.com/docs/collections) of Alerts and transforms each into an HTML string. This makes swapping a frontend framework easier, and allows greater flexibility when rendering HTML.
+A Renderer takes a [collection](https://laravel.com/docs/10.x/collections) of Alerts and transforms each into an HTML string. This makes swapping a frontend framework easier, and allows greater flexibility when rendering HTML.
 
 ### Creating a custom renderer
 
@@ -528,7 +528,7 @@ This will work as long the JSON **has the `message` key** with the text to inclu
 
 This library has a convenient way to add Alerts into your JSON Responses. This can be very useful to add your alerts to each response being sent to the browser, like combining this package with [Laravel Jetstream](https://jetstream.laravel.com/).
 
-Just simply [add the `alerts.json` middleware](https://laravel.com/docs/middleware#registering-middleware) into your `api` routes or, if you're using [Laravel Jetstream](https://jetstream.laravel.com/) or similar, as a [global middleware](https://laravel.com/docs/middleware#global-middleware).
+Just simply [add the `alerts.json` middleware](https://laravel.com/docs/10.x/middleware#registering-middleware) into your `api` routes or, if you're using [Laravel Jetstream](https://jetstream.laravel.com/) or similar, as a [global middleware](https://laravel.com/docs/10.x/middleware#global-middleware).
 
 When you return a `JsonResponse` to the browser, the middleware will append the alert as JSON using the same [session key](#session-key) defined in the configuration, which is `_alerts` by default. It also accepts the `key` parameter to use as an alternative, compatible with *dot notation*.
 
