@@ -1,5 +1,10 @@
 # Alerts
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/laragear/alerts.svg)](https://packagist.org/packages/laragear/alerts) [![Latest stable test run](https://github.com/Laragear/Alerts/workflows/Tests/badge.svg)](https://github.com/Laragear/Alerts/actions) [![Codecov coverage](https://codecov.io/gh/Laragear/Alerts/branch/1.x/graph/badge.svg?token=U6QBXDK9BQ)](https://codecov.io/gh/Laragear/Alerts) [![Maintainability](https://api.codeclimate.com/v1/badges/34148d10c7b92dbd408f/maintainability)](https://codeclimate.com/github/Laragear/Alerts/maintainability) [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=Laragear_Alerts&metric=alert_status)](https://sonarcloud.io/dashboard?id=Laragear_Alerts) [![Laravel Octane Compatibility](https://img.shields.io/badge/Laravel%20Octane-Compatible-success?style=flat&logo=laravel)](https://laravel.com/docs/9.x/octane#introduction)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/laragear/alerts.svg)](https://packagist.org/packages/laragear/alerts)
+[![Latest stable test run](https://github.com/Laragear/Alerts/workflows/Tests/badge.svg)](https://github.com/Laragear/Alerts/actions)
+[![Codecov coverage](https://codecov.io/gh/Laragear/Alerts/branch/1.x/graph/badge.svg?token=U6QBXDK9BQ)](https://codecov.io/gh/Laragear/Alerts)
+[![Maintainability](https://api.codeclimate.com/v1/badges/34148d10c7b92dbd408f/maintainability)](https://codeclimate.com/github/Laragear/Alerts/maintainability)
+[![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=Laragear_Alerts&metric=alert_status)](https://sonarcloud.io/dashboard?id=Laragear_Alerts)
+[![Laravel Octane Compatibility](https://img.shields.io/badge/Laravel%20Octane-Compatible-success?style=flat&logo=laravel)](https://laravel.com/docs/10.x/octane#introduction)
 
 Set multiple alerts from your backend, render them in the frontend with any HTML.
 
