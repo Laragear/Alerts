@@ -2,13 +2,14 @@
 
 namespace Tests;
 
-use function alert;
-use function app;
 use BadMethodCallException;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\URL;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
+
+use function alert;
+use function app;
 
 class AlertTest extends TestCase
 {
@@ -159,8 +160,8 @@ class AlertTest extends TestCase
 
         static::assertEquals(
             [
-                'message'     => 'foo',
-                'types'       => ['bar', 'foo'],
+                'message' => 'foo',
+                'types' => ['bar', 'foo'],
                 'dismissible' => true,
             ],
             $alert->toArray()
@@ -187,8 +188,8 @@ class AlertTest extends TestCase
     {
         $alert = Alert::fromArray(
             [
-                'message'     => 'foo',
-                'types'       => ['foo', 'bar'],
+                'message' => 'foo',
+                'types' => ['foo', 'bar'],
                 'dismissible' => true,
                 'persist_key' => 'baz',
             ]
