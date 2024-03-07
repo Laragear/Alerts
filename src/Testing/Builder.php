@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Testing\Assert as PHPUnit;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Testing\Fakes\BagFake;
+
 use function in_array;
 use function is_array;
 use function is_string;
@@ -95,8 +96,8 @@ class Builder
     {
         $this->links[] = (object) [
             'replace' => $replace,
-            'url'     => $url,
-            'blank'   => $blank,
+            'url' => $url,
+            'blank' => $blank,
         ];
 
         usort($this->links, static function (object $first, object $second): int {

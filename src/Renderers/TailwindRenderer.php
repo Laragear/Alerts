@@ -21,12 +21,12 @@ class TailwindRenderer implements Renderer
      * @var array<string, string|string[]>
      */
     protected const TYPE_CLASSES = [
-        'success'   => ['bg-green-100',     'ring-green-500/20',    'text-green-900'],
-        'failure'   => ['bg-red-100',       'ring-red-500/20',      'text-red-900'],
-        'warning'   => ['bg-yellow-100',    'ring-yellow-500/20',   'text-yellow-900'],
-        'info'      => ['bg-blue-100',      'ring-blue-500/20',     'text-blue-900'],
-        'light'     => ['bg-white',         'ring-gray-900/5',      'text-gray-900'],
-        'dark'      => ['bg-gray-800',      'ring-white/10',        'text-gray-300'],
+        'success' => ['bg-green-100',     'ring-green-500/20',    'text-green-900'],
+        'failure' => ['bg-red-100',       'ring-red-500/20',      'text-red-900'],
+        'warning' => ['bg-yellow-100',    'ring-yellow-500/20',   'text-yellow-900'],
+        'info' => ['bg-blue-100',      'ring-blue-500/20',     'text-blue-900'],
+        'light' => ['bg-white',         'ring-gray-900/5',      'text-gray-900'],
+        'dark' => ['bg-gray-800',      'ring-white/10',        'text-gray-300'],
     ];
 
     /**

@@ -5,9 +5,11 @@ namespace Laragear\Alerts;
 use Closure;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Macroable;
+
 use function array_key_last;
 use function is_iterable;
 use function json_decode;
+
 use const JSON_THROW_ON_ERROR;
 
 /**

@@ -7,6 +7,7 @@ use Illuminate\Support\Manager;
 
 /**
  * @method \Laragear\Alerts\Contracts\Renderer driver($driver = null)
+ *
  * @codeCoverageIgnore
  */
 class RendererManager extends Manager

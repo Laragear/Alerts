@@ -6,6 +6,7 @@ use Countable;
 
 /**
  * @internal  This is only a bogus alert that does nothing, and it's not added to the Alert bag.
+ *
  * @codeCoverageIgnore
  */
 class BogusAlert extends Alert

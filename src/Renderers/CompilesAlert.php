@@ -4,6 +4,7 @@ namespace Laragear\Alerts\Renderers;
 
 use Illuminate\Support\Arr;
 use Laragear\Alerts\Alert;
+
 use function array_column;
 use function array_map;
 use function array_merge;
@@ -20,8 +21,8 @@ trait CompilesAlert
     public function compileAlert(Alert $alert): object
     {
         return (object) [
-            'message'     => static::compileMessage($alert),
-            'classes'     => static::compileClasses($alert),
+            'message' => static::compileMessage($alert),
+            'classes' => static::compileClasses($alert),
             'dismissible' => $alert->isDismissible(),
         ];
     }
