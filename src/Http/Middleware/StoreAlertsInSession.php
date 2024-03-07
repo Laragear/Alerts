@@ -7,6 +7,7 @@ use Illuminate\Contracts\Session\Session as SessionContract;
 use Illuminate\Http\Request;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
+
 use function array_merge;
 use function in_array;
 
