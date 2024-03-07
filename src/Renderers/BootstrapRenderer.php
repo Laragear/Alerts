@@ -21,14 +21,14 @@ class BootstrapRenderer implements Renderer
      * @var array<string, string|string[]>
      */
     protected const TYPE_CLASSES = [
-        'primary'   => 'alert-primary',
+        'primary' => 'alert-primary',
         'secondary' => 'alert-secondary',
-        'success'   => 'alert-success',
-        'danger'    => 'alert-danger',
-        'warning'   => 'alert-warning',
-        'info'      => 'alert-info',
-        'light'     => 'alert-light',
-        'dark'      => 'alert-dark',
+        'success' => 'alert-success',
+        'danger' => 'alert-danger',
+        'warning' => 'alert-warning',
+        'info' => 'alert-info',
+        'light' => 'alert-light',
+        'dark' => 'alert-dark',
     ];
 
     /**

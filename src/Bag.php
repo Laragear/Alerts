@@ -30,7 +30,7 @@ class Bag
      * Create a new Bag instance.
      *
      * @param  string[]  $tags
-     * @param  string[]  $persisted
+     * @param  array<string, int>  $persisted
      */
     public function __construct(protected array $tags, protected array $persisted = [])
     {
@@ -40,7 +40,7 @@ class Bag
     /**
      * Returns all a key-index map of all persisted alerts.
      *
-     * @return string[]
+     * @return array<string, int>
      */
     public function getPersisted(): array
     {
@@ -149,7 +149,7 @@ class Bag
     /**
      * Locates the key of a persistent alert.
      */
-    protected function whichPersistent(string $key): ?string
+    protected function whichPersistent(string $key): ?int
     {
         return $this->persisted[$key] ?? null;
     }

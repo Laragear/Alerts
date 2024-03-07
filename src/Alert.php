@@ -252,8 +252,8 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     {
         $this->links[] = (object) [
             'replace' => trim($replace, '{}'),
-            'url'     => $url,
-            'blank'   => $blank,
+            'url' => $url,
+            'blank' => $blank,
         ];
 
         usort($this->links, static function (object $first, object $second): int {
@@ -315,8 +315,8 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     public function toArray(): array
     {
         return [
-            'message'     => $this->message,
-            'types'       => $this->types,
+            'message' => $this->message,
+            'types' => $this->types,
             'dismissible' => $this->dismissible,
         ];
     }
@@ -359,12 +359,12 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     public function __serialize(): array
     {
         return [
-            'persist_key'  => $this->persistKey,
-            'message'     => $this->message,
-            'types'       => $this->types,
-            'links'       => $this->links,
+            'persist_key' => $this->persistKey,
+            'message' => $this->message,
+            'types' => $this->types,
+            'links' => $this->links,
             'dismissible' => $this->dismissible,
-            'tags'        => $this->tags,
+            'tags' => $this->tags,
         ];
     }
 

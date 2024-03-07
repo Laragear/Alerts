@@ -2,13 +2,14 @@
 
 namespace Tests\Blade\Components;
 
-use function alert;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithViews;
 use Illuminate\Support\Collection;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
 use Laragear\Alerts\Contracts\Renderer;
 use Tests\TestCase;
+
+use function alert;
 
 class ContainerTest extends TestCase
 {
@@ -30,7 +31,7 @@ class ContainerTest extends TestCase
         static::assertEquals(<<<'EOT'
 <div class="container"></div>
 EOT
-        , (string) $this->blade('<div class="container"><x-alerts-container /></div>')
+            , (string) $this->blade('<div class="container"><x-alerts-container /></div>')
         );
     }
 
