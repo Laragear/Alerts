@@ -2,7 +2,7 @@
 
 namespace Laragear\Alerts\Renderers;
 
-use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\Factory as ViewContract;
 use Illuminate\Support\Collection;
 use Laragear\Alerts\Contracts\Renderer;
 
@@ -12,15 +12,13 @@ class TailwindRenderer implements Renderer
 
     /**
      * View file for Bootstrap Alerts.
-     *
-     * @var string
      */
     protected const VIEW = 'alerts::tailwind.container';
 
     /**
      * Class translation table for known types.
      *
-     * @var array<string, string|array<int, string>>
+     * @var array<string, string|string[]>
      */
     protected const TYPE_CLASSES = [
         'success'   => ['bg-green-100',     'ring-green-500/20',    'text-green-900'],
@@ -33,17 +31,13 @@ class TailwindRenderer implements Renderer
 
     /**
      * Classes that should be added when dismissing the alert.
-     *
-     * @var array|string[]
      */
     protected const DISMISS_CLASSES = ['transition-opacity', 'opacity-100'];
 
     /**
      * Bootstrap Renderer constructor.
-     *
-     * @param  \Illuminate\Contracts\View\Factory  $factory
      */
-    public function __construct(protected Factory $factory)
+    public function __construct(protected ViewContract $factory)
     {
         //
     }
@@ -52,7 +46,6 @@ class TailwindRenderer implements Renderer
      * Returns the rendered alerts as a single HTML string.
      *
      * @param  \Illuminate\Support\Collection<int, \Laragear\Alerts\Alert>  $alerts
-     * @return string
      */
     public function render(Collection $alerts): string
     {

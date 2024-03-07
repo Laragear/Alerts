@@ -13,7 +13,6 @@ class BogusAlert extends Alert
     /**
      * Sets a safely-escaped message.
      *
-     * @param  string  $message
      * @return $this
      */
     public function message(string $message): static
@@ -24,7 +23,6 @@ class BogusAlert extends Alert
     /**
      * Sets a raw, non-escaped, message.
      *
-     * @param  string  $message
      * @return $this
      */
     public function raw(string $message): static
@@ -35,9 +33,6 @@ class BogusAlert extends Alert
     /**
      * Set a localized message into the Alert.
      *
-     * @param  string  $key
-     * @param  array  $replace
-     * @param  string|null  $locale
      * @return $this
      */
     public function trans(string $key, array $replace = [], string $locale = null): static
@@ -48,10 +43,6 @@ class BogusAlert extends Alert
     /**
      * Sets a localized pluralized message into the Alert.
      *
-     * @param  string  $key
-     * @param  \Countable|int|array  $number
-     * @param  array  $replace
-     * @param  string|null  $locale
      * @return $this
      */
     public function transChoice(
@@ -66,7 +57,6 @@ class BogusAlert extends Alert
     /**
      * Sets one or many types for this alert.
      *
-     * @param  string  ...$types
      * @return $this
      */
     public function types(string ...$types): static
@@ -77,7 +67,6 @@ class BogusAlert extends Alert
     /**
      * Sets the Alert as dismissible.
      *
-     * @param  bool  $dismissible
      * @return $this
      */
     public function dismiss(bool $dismissible = true): static
@@ -88,7 +77,6 @@ class BogusAlert extends Alert
     /**
      * Persists the key into the session, forever.
      *
-     * @param  string  $key
      * @return $this
      */
     public function persistAs(string $key): static
@@ -99,9 +87,6 @@ class BogusAlert extends Alert
     /**
      * Adds an external link that should be replaced before rendering the Alert.
      *
-     * @param  string  $replace
-     * @param  string  $url
-     * @param  bool  $blank
      * @return $this
      */
     public function away(string $replace, string $url, bool $blank = true): static
@@ -112,9 +97,6 @@ class BogusAlert extends Alert
     /**
      * Adds a link that should be replaced before rendering the Alert.
      *
-     * @param  string  $replace
-     * @param  string  $url
-     * @param  bool  $blank
      * @return $this
      */
     public function to(string $replace, string $url, bool $blank = false): static
@@ -125,10 +107,6 @@ class BogusAlert extends Alert
     /**
      * Adds a link to a route that should be replaced before rendering the Alert.
      *
-     * @param  string  $replace
-     * @param  string  $name
-     * @param  array  $parameters
-     * @param  bool  $blank
      * @return $this
      */
     public function route(string $replace, string $name, array $parameters = [], bool $blank = false): static
@@ -139,10 +117,6 @@ class BogusAlert extends Alert
     /**
      * Adds a link to an action that should be replaced before rendering the Alert.
      *
-     * @param  string  $replace
-     * @param  string|array  $action
-     * @param  array  $parameters
-     * @param  bool  $blank
      * @return $this
      */
     public function action(string $replace, string|array $action, array $parameters = [], bool $blank = false): static
@@ -153,7 +127,6 @@ class BogusAlert extends Alert
     /**
      * Tags the alert.
      *
-     * @param  string  ...$tags
      * @return $this
      */
     public function tag(string ...$tags): static

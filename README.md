@@ -26,8 +26,7 @@ Your support allows me to keep this package free, up-to-date and maintainable. A
 
 ## Requirements
 
-* PHP 8 or later.
-* Laravel 9, 10 or later
+* Laravel 10 or later
 
 ## Installation
 
@@ -148,6 +147,8 @@ Alert::message('We will email you 📨 a copy!')->types('info');
 </div>
 ```
 
+> [!IMPORTANT]
+> 
 > By default, the `message()` method escapes the text. If you want to send a raw message, you should use [`raw()`](#raw-message).
 
 ### Raw message
@@ -198,6 +199,8 @@ Alert::message('There is an unread message.')->types('info', 'cool');
 
 The types are like _keywords_ that the underlying Renderer will use to transform the alert into proper HTML code.  
 
+> [!NOTE]
+>
 > The default Bootstrap Renderer will set each unrecognized type as an additional CSS class.
 
 ### Localization
@@ -292,6 +295,8 @@ use Laragear\Alerts\Facades\Alert;
 Alert::danger('Your disk size is almost full')->persistAs('disk.full');
 ```
 
+> [!NOTE]
+>
 > Setting a persistent alert replaces any previous set with the same key. 
 
 Once you're done, you can delete the persistent Alert using `abandon()` method directly from the helper using the key of the persisted Alert. For example, we can abandon the previous alert if the disk is no longer full.
@@ -337,6 +342,8 @@ Alert::trans('Your {product} is contained in this {order}.')
     ->to('order', '/dashboard/order/45')
 ```
 
+> [!IMPORTANT]
+>
 > Links strings are case-sensitive, and replaces all occurrences of the same string. You can [create your own Renderer](#creating-a-custom-renderer) if this is not desired. 
 
 ### Tags
@@ -525,8 +532,10 @@ use Laragear\Alerts\Facades\Alert;
 Alert::fromJson($json);
 ```
 
-This will work as long the JSON **has the `message` key** with the text to include inside the Alert. Additionally, you can add the `types` and `dismiss` keys to add an Alert, with the possibility of override them afterwards.
+This will work as long the JSON **has the `message` key** with the text to include inside the Alert. Additionally, you can add the `types` and `dismiss` keys to add an Alert, with the possibility of override them afterward.
 
+> [!WARNING]
+>
 > The message from JSON is set **raw**.
 
 ### Sending JSON Alerts
@@ -572,6 +581,8 @@ When you receive a JSON Response, you will see the alerts appended to whichever 
 }
 ```
 
+> [!WARNING]
+>
 > If your key is already present in the JSON response, **the key will be overwritten**.
 
 ## Testing
@@ -670,4 +681,4 @@ If you discover any security related issues, please email darkghosthunter@gmail.
 
 This specific package version is licensed under the terms of the [MIT License](LICENSE.md), at time of publishing.
 
-[Laravel](https://laravel.com) is a Trademark of [Taylor Otwell](https://github.com/TaylorOtwell/). Copyright © 2011-2023 Laravel LLC.
+[Laravel](https://laravel.com) is a Trademark of [Taylor Otwell](https://github.com/TaylorOtwell/). Copyright © 2011-2024 Laravel LLC.

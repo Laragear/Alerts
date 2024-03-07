@@ -2,14 +2,13 @@
 
 namespace Laragear\Alerts;
 
-use function array_key_last;
 use Closure;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Macroable;
+use function array_key_last;
 use function is_iterable;
 use function json_decode;
 use const JSON_THROW_ON_ERROR;
-use function value;
 
 /**
  * @mixin \Laragear\Alerts\Alert
@@ -30,8 +29,8 @@ class Bag
     /**
      * Create a new Bag instance.
      *
-     * @param  array  $tags
-     * @param  array  $persisted
+     * @param  string[]  $tags
+     * @param  string[]  $persisted
      */
     public function __construct(protected array $tags, protected array $persisted = [])
     {
@@ -41,7 +40,7 @@ class Bag
     /**
      * Returns all a key-index map of all persisted alerts.
      *
-     * @return array
+     * @return string[]
      */
     public function getPersisted(): array
     {
@@ -51,7 +50,7 @@ class Bag
     /**
      * Returns the default list of tags injected in each Alert.
      *
-     * @return array
+     * @return string[]
      */
     public function getDefaultTags(): array
     {
@@ -60,8 +59,6 @@ class Bag
 
     /**
      * Creates a new Alert into this Bag instance.
-     *
-     * @return \Laragear\Alerts\Alert
      */
     public function new(): Alert
     {
@@ -73,7 +70,6 @@ class Bag
     /**
      * Adds an Alert into the bag.
      *
-     * @param  \Laragear\Alerts\Alert|iterable  $alert
      * @return $this
      */
     public function add(Alert|iterable $alert): static
@@ -113,8 +109,6 @@ class Bag
     /**
      * Marks an existing Alert as persistent.
      *
-     * @param  string  $key
-     * @param  int  $index
      * @return $this
      */
     public function markPersisted(string $key, int $index): static
@@ -130,7 +124,6 @@ class Bag
     /**
      * Abandons a persisted Alert.
      *
-     * @param  string  $key
      * @return bool Returns true if successful.
      */
     public function abandon(string $key): bool
@@ -147,9 +140,6 @@ class Bag
 
     /**
      * Check if an Alert by the given key is persistent.
-     *
-     * @param  string  $key
-     * @return bool
      */
     public function hasPersistent(string $key): bool
     {
@@ -158,9 +148,6 @@ class Bag
 
     /**
      * Locates the key of a persistent alert.
-     *
-     * @param  string  $key
-     * @return int|null
      */
     protected function whichPersistent(string $key): ?int
     {
@@ -169,8 +156,6 @@ class Bag
 
     /**
      * Deletes all alerts.
-     *
-     * @return void
      */
     public function flush(): void
     {
@@ -201,12 +186,6 @@ class Bag
 
     /**
      * Adds an Alert into the bag from a JSON string.
-     *
-     * @param  string  $alert
-     * @param  int  $options
-     * @return \Laragear\Alerts\Alert
-     *
-     * @throws \JsonException
      */
     public function fromJson(string $alert, int $options = 0): Alert
     {
@@ -219,10 +198,6 @@ class Bag
      * Pass through all calls to a new Alert.
      *
      * @codeCoverageIgnore
-     *
-     * @param  string  $method
-     * @param  array  $parameters
-     * @return \Laragear\Alerts\Alert
      */
     public function __call($method, $parameters)
     {

@@ -3,7 +3,6 @@
 namespace Laragear\Alerts\Testing\Fakes;
 
 use Illuminate\Support\Collection;
-use JetBrains\PhpStorm\Pure;
 use Laragear\Alerts\Bag;
 use Laragear\Alerts\Testing\Builder;
 
@@ -28,10 +27,7 @@ class BagFake extends Bag
 
     /**
      * Finds an alert by a given key.
-     *
-     * @return \Laragear\Alerts\Testing\Builder
      */
-    #[Pure]
     public function assertAlert(): Builder
     {
         return new Builder($this);
@@ -39,8 +35,6 @@ class BagFake extends Bag
 
     /**
      * Assert that the alert bag has no alerts.
-     *
-     * @return void
      */
     public function assertEmpty(): void
     {
@@ -49,8 +43,6 @@ class BagFake extends Bag
 
     /**
      * Assert that the alert bag has any alert.
-     *
-     * @return void
      */
     public function assertNotEmpty(): void
     {
@@ -59,8 +51,6 @@ class BagFake extends Bag
 
     /**
      * Assert the alert bag contains exactly one alert.
-     *
-     * @return void
      */
     public function assertHasOne(): void
     {
@@ -69,9 +59,6 @@ class BagFake extends Bag
 
     /**
      * Assert the alert bag contains exactly the given number of alerts.
-     *
-     * @param  int  $count
-     * @return void
      */
     public function assertHas(int $count): void
     {
@@ -80,9 +67,6 @@ class BagFake extends Bag
 
     /**
      * Assert the alert bag contains an alert persisted by the given key.
-     *
-     * @param  string  $key
-     * @return void
      */
     public function assertPersisted(string $key): void
     {
@@ -91,8 +75,6 @@ class BagFake extends Bag
 
     /**
      * Assert the alert bag contains persistent alerts.
-     *
-     * @return void
      */
     public function assertHasPersistent(): void
     {
@@ -101,8 +83,6 @@ class BagFake extends Bag
 
     /**
      * Assert the alert bag doesn't contain persistent alerts.
-     *
-     * @return void
      */
     public function assertHasNoPersistent(): void
     {

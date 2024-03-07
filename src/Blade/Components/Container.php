@@ -3,24 +3,18 @@
 namespace Laragear\Alerts\Blade\Components;
 
 use Illuminate\View\Component;
-use JetBrains\PhpStorm\Pure;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
-use Laragear\Alerts\Contracts\Renderer;
+use Laragear\Alerts\Contracts\Renderer as RendererContract;
 
 class Container extends Component
 {
     /**
      * Create a new component instance.
-     *
-     * @param  \Laragear\Alerts\Bag  $bag
-     * @param  \Laragear\Alerts\Contracts\Renderer  $renderer
-     * @param  array|string|null  $tags
      */
-    #[Pure]
     public function __construct(
         protected Bag $bag,
-        protected Renderer $renderer,
+        protected RendererContract $renderer,
         protected array|string|null $tags = null)
     {
         // If the developer doesn't set tags, we will use the default list.
@@ -29,8 +23,6 @@ class Container extends Component
 
     /**
      * Get the view / view contents that represent the component.
-     *
-     * @return string
      */
     public function render(): string
     {
@@ -43,8 +35,6 @@ class Container extends Component
 
     /**
      * Determine if the component should be rendered.
-     *
-     * @return bool
      */
     public function shouldRender(): bool
     {
