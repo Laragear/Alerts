@@ -3,7 +3,7 @@
 namespace Laragear\Alerts;
 
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Contracts\Http\Kernel as HttpContract;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 
@@ -14,8 +14,6 @@ class AlertsServiceProvider extends ServiceProvider
 
     /**
      * Register the application services.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -44,18 +42,16 @@ class AlertsServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap any application services.
-     *
-     * @param  \Illuminate\Foundation\Http\Kernel  $http
-     * @param  \Illuminate\Routing\Router  $router
-     * @return void
      */
-    public function boot(Kernel $http, Router $router): void
+    public function boot(HttpContract $http, Router $router): void
     {
         $this->loadViewsFrom(static::VIEWS, 'alerts');
         $this->loadViewComponentsAs('alerts', [Blade\Components\Container::class]);
 
         // Add the Global Middleware to the `web` group only if it exists.
+        // @phpstan-ignore-next-line
         if (array_key_exists('web', $http->getMiddlewareGroups())) {
+            // @phpstan-ignore-next-line
             $http->appendMiddlewareToGroup('web', Http\Middleware\StoreAlertsInSession::class);
         }
 

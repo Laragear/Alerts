@@ -5,12 +5,11 @@ namespace Laragear\Alerts\Testing;
 use Countable;
 use Illuminate\Support\Collection;
 use Illuminate\Testing\Assert as PHPUnit;
+use Laragear\Alerts\Alert;
+use Laragear\Alerts\Testing\Fakes\BagFake;
 use function in_array;
 use function is_array;
 use function is_string;
-use JetBrains\PhpStorm\Pure;
-use Laragear\Alerts\Alert;
-use Laragear\Alerts\Testing\Fakes\BagFake;
 use function sort;
 use function strcmp;
 use function trans;
@@ -23,14 +22,10 @@ class Builder
     /**
      * Create a new expectation builder instance.
      *
-     * @param  \Laragear\Alerts\Testing\Fakes\BagFake  $bag
-     * @param  string|null  $message
      * @param  string[]|null  $types
-     * @param  bool|null  $dismiss
      * @param  string[]|bool|null|string  $persisted
      * @param  string[]|null  $tags
      * @param  string[]|null  $links
-     * @param  bool  $anyTag
      */
     public function __construct(
         public BagFake $bag,
@@ -48,7 +43,6 @@ class Builder
     /**
      * Expect an alert with the raw message.
      *
-     * @param  string  $message
      * @return $this
      */
     public function withRaw(string $message): static
@@ -61,7 +55,6 @@ class Builder
     /**
      * Expect an alert with the message.
      *
-     * @param  string  $message
      * @return $this
      */
     public function withMessage(string $message): static
@@ -72,9 +65,6 @@ class Builder
     /**
      * Expect an alert with a translated message.
      *
-     * @param  string  $key
-     * @param  array  $replace
-     * @param  string|null  $locale
      * @return $this
      */
     public function withTrans(string $key, array $replace = [], string $locale = null): static
@@ -85,10 +75,6 @@ class Builder
     /**
      * Expect an alert with a translated (choice) message.
      *
-     * @param  string  $key
-     * @param  Countable|int|array  $number
-     * @param  array  $replace
-     * @param  string|null  $locale
      * @return $this
      */
     public function withTransChoice(
@@ -103,9 +89,6 @@ class Builder
     /**
      * Expect an alert with a link away.
      *
-     * @param  string  $replace
-     * @param  string  $url
-     * @param  bool  $blank
      * @return $this
      */
     public function withAway(string $replace, string $url, bool $blank = true): static
@@ -126,9 +109,6 @@ class Builder
     /**
      * Expect an alert with a link to a path.
      *
-     * @param  string  $replace
-     * @param  string  $url
-     * @param  bool  $blank
      * @return $this
      */
     public function withTo(string $replace, string $url, bool $blank = false): static
@@ -139,10 +119,6 @@ class Builder
     /**
      * Expect an alert with a link to a route.
      *
-     * @param  string  $replace
-     * @param  string  $name
-     * @param  array  $parameters
-     * @param  bool  $blank
      * @return $this
      */
     public function withRoute(string $replace, string $name, array $parameters = [], bool $blank = false): static
@@ -153,10 +129,6 @@ class Builder
     /**
      * Expect an alert with a link to an action.
      *
-     * @param  string  $replace
-     * @param  string|array  $action
-     * @param  array  $parameters
-     * @param  bool  $blank
      * @return $this
      */
     public function withAction(string $replace, string|array $action, array $parameters = [], bool $blank = false): static
@@ -167,7 +139,6 @@ class Builder
     /**
      * Expect an alert with the issued types.
      *
-     * @param  string  ...$types
      * @return $this
      */
     public function withTypes(string ...$types): static
@@ -230,7 +201,6 @@ class Builder
     /**
      * Expect an alert with the given tags.
      *
-     * @param  string  ...$tags
      * @return $this
      */
     public function withTag(string ...$tags): static
@@ -243,7 +213,6 @@ class Builder
     /**
      * Expect an alert with any of the given tags.
      *
-     * @param  string  ...$tags
      * @return $this
      */
     public function withAnyTag(string ...$tags): static
@@ -268,10 +237,8 @@ class Builder
     /**
      * Check if the given alert matches the expectations.
      *
-     * @param  \Laragear\Alerts\Alert  $alert
      * @return bool
      */
-    #[Pure]
     protected function is(Alert $alert): bool
     {
         if ($this->message !== null && $this->message !== $alert->getMessage()) {
@@ -315,9 +282,6 @@ class Builder
 
     /**
      * Expect an alert persisted with the issued key.
-     *
-     * @param  string  ...$key
-     * @return void
      */
     public function persistedAs(string ...$key): void
     {
@@ -330,9 +294,6 @@ class Builder
 
     /**
      * Assert that at least one Alert exists with the given expectations.
-     *
-     * @param  string  $message
-     * @return void
      */
     public function exists(string $message = 'Failed to assert that at least one alert matches the expectations.'): void
     {
@@ -341,9 +302,6 @@ class Builder
 
     /**
      * Assert that no Alert exists with the given expectations.
-     *
-     * @param  string  $message
-     * @return void
      */
     public function missing(string $message = 'Failed to assert that no alert matches the expectations.'): void
     {
@@ -352,9 +310,6 @@ class Builder
 
     /**
      * Assert that only one Alert exists with the given expectations.
-     *
-     * @param  string  $message
-     * @return void
      */
     public function unique(string $message = 'Failed to assert that there is only one alert.'): void
     {
@@ -363,10 +318,6 @@ class Builder
 
     /**
      * Assert that the given number of Alerts matches exactly the given expectations.
-     *
-     * @param  int  $count
-     * @param  string|null  $message
-     * @return void
      */
     public function count(int $count, string $message = null): void
     {

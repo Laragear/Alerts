@@ -8,15 +8,13 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
-use function is_array;
-use JetBrains\PhpStorm\ArrayShape;
-use JetBrains\PhpStorm\Pure;
-use function json_encode;
 use JsonSerializable;
+use Stringable;
+use function is_array;
+use function json_encode;
 use function sort;
 use function sprintf;
 use function strcmp;
-use Stringable;
 use function trans;
 use function trim;
 use function url;
@@ -30,8 +28,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * The internal key of this Alert in the bag.
      *
-     * @var int
-     *
      * @internal
      */
     public int $index;
@@ -39,13 +35,9 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Create a new Alert instance.
      *
-     * @param  \Laragear\Alerts\Bag  $bag
-     * @param  string|null  $persistKey
-     * @param  string  $message
-     * @param  array  $types
-     * @param  array  $links
-     * @param  bool  $dismissible
-     * @param  array  $tags
+     * @param  string[]  $types
+     * @param  array<int, object{replace: string, url: string, blank: bool}>  $links
+     * @param  string[]  $tags
      */
     final public function __construct(
         protected Bag $bag,
@@ -62,7 +54,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Sets the Bag for the Alert.
      *
-     * @param  \Laragear\Alerts\Bag  $bag
      * @return $this
      */
     public function setBag(Bag $bag): static
@@ -75,8 +66,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Returns the key used to persist the alert, if any.
      *
-     * @return string|null
-     *
      * @internal
      */
     public function getPersistKey(): ?string
@@ -86,8 +75,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
 
     /**
      * Returns the message of the Alert.
-     *
-     * @return string
      *
      * @internal
      */
@@ -111,7 +98,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Returns the links to replace in the message.
      *
-     * @return array
+     * @return array<int, object{replace: string, url: string, blank: bool}>
      *
      * @internal
      */
@@ -123,8 +110,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Check if the Alert should be dismissible.
      *
-     * @return bool
-     *
      * @internal
      */
     public function isDismissible(): bool
@@ -135,8 +120,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Returns the tags of this Alert.
      *
-     * @return array
-     *
      * @internal
      */
     public function getTags(): array
@@ -146,9 +129,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
 
     /**
      * Check if the alert contains any of the given tags.
-     *
-     * @param  string  ...$tags
-     * @return bool
      *
      * @internal
      */
@@ -166,7 +146,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Sets a safely-escaped message.
      *
-     * @param  string  $message
      * @return $this
      */
     public function message(string $message): static
@@ -177,7 +156,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Sets a raw, non-escaped, message.
      *
-     * @param  string  $message
      * @return $this
      */
     public function raw(string $message): static
@@ -190,9 +168,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Set a localized message into the Alert.
      *
-     * @param  string  $key
-     * @param  array  $replace
-     * @param  string|null  $locale
      * @return $this
      */
     public function trans(string $key, array $replace = [], string $locale = null): static
@@ -203,10 +178,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Sets a localized pluralized message into the Alert.
      *
-     * @param  string  $key
-     * @param  \Countable|int|array  $number
-     * @param  array  $replace
-     * @param  string|null  $locale
      * @return $this
      */
     public function transChoice(
@@ -221,7 +192,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Sets one or many types for this alert.
      *
-     * @param  string  ...$types
      * @return $this
      */
     public function types(string ...$types): static
@@ -236,7 +206,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Sets the Alert as dismissible.
      *
-     * @param  bool  $dismissible
      * @return $this
      */
     public function dismiss(bool $dismissible = true): static
@@ -249,7 +218,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Persists the key into the session, forever.
      *
-     * @param  string  $key
      * @return $this
      */
     public function persistAs(string $key): static
@@ -278,9 +246,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Adds an external link that should be replaced before rendering the Alert.
      *
-     * @param  string  $replace
-     * @param  string  $url
-     * @param  bool  $blank
      * @return $this
      */
     public function away(string $replace, string $url, bool $blank = true): static
@@ -301,9 +266,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Adds a link that should be replaced before rendering the Alert.
      *
-     * @param  string  $replace
-     * @param  string  $url
-     * @param  bool  $blank
      * @return $this
      */
     public function to(string $replace, string $url, bool $blank = false): static
@@ -314,10 +276,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Adds a link to a route that should be replaced before rendering the Alert.
      *
-     * @param  string  $replace
-     * @param  string  $name
-     * @param  array  $parameters
-     * @param  bool  $blank
      * @return $this
      */
     public function route(string $replace, string $name, array $parameters = [], bool $blank = false): static
@@ -328,10 +286,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Adds a link to an action that should be replaced before rendering the Alert.
      *
-     * @param  string  $replace
-     * @param  string|array  $action
-     * @param  array  $parameters
-     * @param  bool  $blank
      * @return $this
      */
     public function action(string $replace, string|array $action, array $parameters = [], bool $blank = false): static
@@ -342,7 +296,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Tags the alert.
      *
-     * @param  string  ...$tags
      * @return $this
      */
     public function tag(string ...$tags): static
@@ -357,9 +310,8 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Get the instance as an array.
      *
-     * @return array
+     * @return array{message: string, types: string[], dismissible: bool}
      */
-    #[ArrayShape(['message' => 'string', 'types' => 'array', 'dismissible' => 'bool'])]
     public function toArray(): array
     {
         return [
@@ -373,9 +325,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
      * Convert the object to its JSON representation.
      *
      * @param  int  $options
-     * @return string
-     *
-     * @throws \JsonException
      */
     public function toJson($options = 0): string
     {
@@ -385,10 +334,8 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Specify data which should be serialized to JSON.
      *
-     * @return array
+     * @return array{message: string, types: string[], dismissible: bool }
      */
-    #[Pure]
-    #[ArrayShape(['message' => 'string', 'types' => 'array', 'dismissible' => 'bool'])]
     public function jsonSerialize(): array
     {
         return $this->toArray();
@@ -396,12 +343,8 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
 
     /**
      * Returns the string representation of the Alert.
-     *
-     * @return string
-     *
-     * @throws \JsonException
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->toJson();
     }
@@ -411,16 +354,12 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
      *
      * @codeCoverageIgnore
      *
-     * @return array
+     * @return array{persist_key: string|null, message: string, types: array<string>, links: array<int, object{replace: string, url: string, blank: bool}>, dismissible: bool, tags: array<string>}
      */
-    #[ArrayShape([
-        'persistKey' => 'null|string', 'message' => 'string', 'types' => 'array', 'links' => 'array',
-        'dismissible' => 'bool', 'tags' => 'array',
-    ])]
     public function __serialize(): array
     {
         return [
-            'persistKey'  => $this->persistKey,
+            'persist_key'  => $this->persistKey,
             'message'     => $this->message,
             'types'       => $this->types,
             'links'       => $this->links,
@@ -434,11 +373,11 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
      *
      * @codeCoverageIgnore
      *
-     * @param  array  $data
+     * @param  array{persist_key: string|null, message: string, types: array<string>, links: array<int, object{replace: string, url: string, blank: bool}>, dismissible: bool, tags: array<string>}  $data
      */
     public function __unserialize(array $data): void
     {
-        $this->persistKey = $data['persistKey'];
+        $this->persistKey = $data['persist_key'];
         $this->message = $data['message'];
         $this->types = $data['types'];
         $this->links = $data['links'];
@@ -451,9 +390,8 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
      *
      * @param  string  $method
      * @param  array  $parameters
-     * @return static
      */
-    public function __call(string $method, array $parameters)
+    public function __call($method, $parameters): static
     {
         // If the alert already has a macro with the same name of the method called,
         // we will pass it to the macro and call it a day. Otherwise, we will pass
@@ -471,10 +409,6 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
 
     /**
      * Creates a new Alert from a Bag and an array.
-     *
-     * @param  \Laragear\Alerts\Bag|array  $bag
-     * @param  array|null  $alert
-     * @return \Laragear\Alerts\Alert
      */
     public static function fromArray(Bag|array $bag, array $alert = null): Alert
     {

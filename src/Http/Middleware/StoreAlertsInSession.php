@@ -2,21 +2,18 @@
 
 namespace Laragear\Alerts\Http\Middleware;
 
-use function array_merge;
 use Closure;
-use Illuminate\Contracts\Session\Session;
+use Illuminate\Contracts\Session\Session as SessionContract;
 use Illuminate\Http\Request;
-use function in_array;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
+use function array_merge;
+use function in_array;
 
 class StoreAlertsInSession
 {
     /**
      * Create a new middleware instance.
-     *
-     * @param  \Laragear\Alerts\Bag  $bag
-     * @param  string  $key
      */
     public function __construct(protected Bag $bag, protected string $key)
     {
@@ -25,10 +22,6 @@ class StoreAlertsInSession
 
     /**
      * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
      */
     public function handle(Request $request, Closure $next): mixed
     {
@@ -47,11 +40,8 @@ class StoreAlertsInSession
 
     /**
      * Takes the existing alerts in the session and adds them to the bag.
-     *
-     * @param  \Illuminate\Contracts\Session\Session  $session
-     * @return void
      */
-    protected function sessionAlertsToBag(Session $session): void
+    protected function sessionAlertsToBag(SessionContract $session): void
     {
         // Retrieve both persistent and non-persistent alerts and add them.
         $this->bag->add(
@@ -67,12 +57,8 @@ class StoreAlertsInSession
 
     /**
      * Move the alerts back to the session.
-     *
-     * @param  \Illuminate\Contracts\Session\Session  $session
-     * @param  bool  $isRedirection
-     * @return void
      */
-    protected function bagAlertsToSession(Session $session, bool $isRedirection): void
+    protected function bagAlertsToSession(SessionContract $session, bool $isRedirection): void
     {
         [$persistent, $nonPersistent] = $this->bag->collect()
             ->partition(function (Alert $alert): bool {

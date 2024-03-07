@@ -13,8 +13,6 @@ class RendererManager extends Manager
 {
     /**
      * Get the default driver name.
-     *
-     * @return string
      */
     public function getDefaultDriver(): string
     {
@@ -23,10 +21,6 @@ class RendererManager extends Manager
 
     /**
      * Creates a Bootstrap renderer.
-     *
-     * @return \Laragear\Alerts\Contracts\Renderer
-     *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     protected function createBootstrapDriver(): Contracts\Renderer
     {
@@ -35,10 +29,6 @@ class RendererManager extends Manager
 
     /**
      * Creates a Tailwind CSS renderer.
-     *
-     * @return \Laragear\Alerts\Contracts\Renderer
-     *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     protected function createTailwindDriver(): Contracts\Renderer
     {

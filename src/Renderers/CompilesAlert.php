@@ -2,23 +2,20 @@
 
 namespace Laragear\Alerts\Renderers;
 
+use Illuminate\Support\Arr;
+use Laragear\Alerts\Alert;
 use function array_column;
 use function array_map;
 use function array_merge;
 use function array_push;
 use function array_unique;
 use function defined;
-use Illuminate\Support\Arr;
 use function implode;
-use Laragear\Alerts\Alert;
 
 trait CompilesAlert
 {
     /**
      * Prepares the alert array.
-     *
-     * @param  \Laragear\Alerts\Alert  $alert
-     * @return object
      */
     public function compileAlert(Alert $alert): object
     {
@@ -31,9 +28,6 @@ trait CompilesAlert
 
     /**
      * Parses the message, replacing each keyword with an HTML link.
-     *
-     * @param  \Laragear\Alerts\Alert  $alert
-     * @return string
      */
     protected static function compileMessage(Alert $alert): string
     {
@@ -54,9 +48,6 @@ trait CompilesAlert
 
     /**
      * Returns a list of classes as a string for a "classes" HTML tag.
-     *
-     * @param  \Laragear\Alerts\Alert  $alert
-     * @return string
      */
     protected static function compileClasses(Alert $alert): string
     {
