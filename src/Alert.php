@@ -171,7 +171,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
      *
      * @return $this
      */
-    public function trans(string $key, array $replace = [], string $locale = null): static
+    public function trans(string $key, array $replace = [], ?string $locale = null): static
     {
         return $this->raw(trans($key, $replace, $locale));
     }
@@ -185,7 +185,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
         string $key,
         Countable|int|array $number,
         array $replace = [],
-        string $locale = null
+        ?string $locale = null
     ): static {
         return $this->raw(trans_choice($key, $number, $replace, $locale));
     }
@@ -411,7 +411,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Creates a new Alert from a Bag and an array.
      */
-    public static function fromArray(Bag|array $bag, array $alert = null): Alert
+    public static function fromArray(Bag|array $bag, ?array $alert = null): Alert
     {
         if (is_array($bag)) {
             [$bag, $alert] = [app(Bag::class), $bag];

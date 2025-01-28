@@ -7,7 +7,7 @@ if (! function_exists('alert')) {
     /**
      * Creates an Alert to render, or calls the Alert Bag without arguments.
      */
-    function alert(string $message = null, string ...$types): Alert|Bag
+    function alert(?string $message = null, string ...$types): Alert|Bag
     {
         $manager = app(Bag::class);
 

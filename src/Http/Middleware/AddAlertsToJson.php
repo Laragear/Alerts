@@ -21,7 +21,7 @@ class AddAlertsToJson
      * @param  string|null  $key
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
-    public function handle(Request $request, Closure $next, string $key = null): JsonResponse|Response
+    public function handle(Request $request, Closure $next, ?string $key = null): JsonResponse|Response
     {
         $response = $next($request);
 
