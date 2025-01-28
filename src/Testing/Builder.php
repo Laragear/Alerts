@@ -68,7 +68,7 @@ class Builder
      *
      * @return $this
      */
-    public function withTrans(string $key, array $replace = [], string $locale = null): static
+    public function withTrans(string $key, array $replace = [], ?string $locale = null): static
     {
         return $this->withRaw(trans($key, $replace, $locale));
     }
@@ -82,7 +82,7 @@ class Builder
         string $key,
         Countable|int|array $number,
         array $replace = [],
-        string $locale = null
+        ?string $locale = null
     ): static {
         return $this->withRaw(trans_choice($key, $number, $replace, $locale));
     }
@@ -298,6 +298,7 @@ class Builder
      */
     public function exists(string $message = 'Failed to assert that at least one alert matches the expectations.'): void
     {
+        // @phpstan-ignore-next-line
         PHPUnit::assertNotEmpty($this->matches(), $message);
     }
 
@@ -306,6 +307,7 @@ class Builder
      */
     public function missing(string $message = 'Failed to assert that no alert matches the expectations.'): void
     {
+        // @phpstan-ignore-next-line
         PHPUnit::assertEmpty($this->matches(), $message);
     }
 
@@ -320,7 +322,7 @@ class Builder
     /**
      * Assert that the given number of Alerts matches exactly the given expectations.
      */
-    public function count(int $count, string $message = null): void
+    public function count(int $count, ?string $message = null): void
     {
         $matches = $this->matches();
 

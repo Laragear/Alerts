@@ -36,7 +36,7 @@ class BogusAlert extends Alert
      *
      * @return $this
      */
-    public function trans(string $key, array $replace = [], string $locale = null): static
+    public function trans(string $key, array $replace = [], ?string $locale = null): static
     {
         return $this;
     }
@@ -50,7 +50,7 @@ class BogusAlert extends Alert
         string $key,
         Countable|int|array $number,
         array $replace = [],
-        string $locale = null
+        ?string $locale = null
     ): static {
         return $this;
     }
