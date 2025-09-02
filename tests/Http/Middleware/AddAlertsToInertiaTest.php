@@ -66,6 +66,7 @@ class AddAlertsToInertiaTest extends TestCase
                             'dismissible' => false,
                             'message' => 'foo',
                             'types' => ['bar', 'quz'],
+                            'metadata' => [],
                         ],
                     ]);
             });
