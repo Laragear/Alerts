@@ -330,10 +330,12 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
      */
     public function metadata(array|string $key, mixed $value = null): static
     {
-        if (is_array($key)) {
-            $this->metadata->fill($key);
-        } else {
-            $this->metadata->set($key, $value);
+        if (is_string($key)) {
+            $key = [$key => $value];
+        }
+
+        foreach ($key as $name => $value) {
+            $this->metadata[$name] = $value;
         }
 
         return $this;
