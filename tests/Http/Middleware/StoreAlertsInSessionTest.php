@@ -76,6 +76,15 @@ class StoreAlertsInSessionTest extends TestCase
             ->assertSessionMissing('_alerts');
     }
 
+    public function test_doesnt_stores_persistent_if_disabled_by_config(): void
+    {
+        $this->app->make('config')->set('alerts.session', false);
+
+        $this->get('persist')
+            ->assertOk()
+            ->assertSessionMissing('_alerts');
+    }
+
     public function test_renders_empty_alerts(): void
     {
         $response = $this->get('empty')->assertSessionMissing('_alerts');

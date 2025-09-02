@@ -16,7 +16,7 @@ class StoreAlertsInSession
     /**
      * Create a new middleware instance.
      */
-    public function __construct(protected Bag $bag, protected string $key)
+    public function __construct(protected Bag $bag, protected string $key, protected bool $bypass)
     {
         //
     }
@@ -26,7 +26,7 @@ class StoreAlertsInSession
      */
     public function handle(Request $request, Closure $next): mixed
     {
-        if ($request->hasSession() && $request->session()->isStarted()) {
+        if ($this->shouldSetAlertsIntoSession($request)) {
             $this->sessionAlertsToBag($request->session());
 
             $response = $next($request);
@@ -37,6 +37,18 @@ class StoreAlertsInSession
         }
 
         return $next($request);
+    }
+
+    /**
+     * Check if the alerts should be inserted into session or not.
+     */
+    protected function shouldSetAlertsIntoSession(Request $request): bool
+    {
+        if (!$this->bypass) {
+            return false;
+        }
+
+        return $request->hasSession() && $request->session()->isStarted();
     }
 
     /**
