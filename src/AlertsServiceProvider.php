@@ -55,7 +55,13 @@ class AlertsServiceProvider extends ServiceProvider
             $http->appendMiddlewareToGroup('web', Http\Middleware\StoreAlertsInSession::class);
         }
 
-        $router->aliasMiddleware('alerts.json', Http\Middleware\AddAlertsToJson::class);
+        $router->aliasMiddleware(
+            Http\Middleware\AddAlertsToJson::SIGNATURE, Http\Middleware\AddAlertsToJson::class
+        );
+
+        $router->aliasMiddleware(
+            Http\Middleware\AddAlertsToInertia::SIGNATURE, Http\Middleware\AddAlertsToInertia::class
+        );
 
         if ($this->app->runningInConsole()) {
             $this->publishes([static::CONFIG => $this->app->configPath('alerts.php')], 'config');

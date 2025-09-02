@@ -585,6 +585,42 @@ When you receive a JSON Response, you will see the alerts appended to whichever 
 >
 > If your key is already present in the JSON response, **the key will be overwritten**.
 
+#### Sending Alerts to Laravel Inertia
+
+If you're using Laravel Inertia, you may want to use the `alerts.inertia` middleware instead of the `alerts.json`. The middleware will automatically add the alerts to Inertia requests/responses automatically.
+
+```php
+use Illuminate\Support\Facades\Route;
+use App\Models\User;use Inertia\Inertia;
+
+Route::middleware('alerts.inertia')
+    ->get('users', function () {
+        alert('All users accounted for!')->success();
+    
+        return Inertia::render('users/index', [
+            'users' => User::paginate()
+        ]);
+    });
+```
+
+Then, you can retrieve them in your frontend page as [shared data](https://inertiajs.com/shared-data#accessing-shared-data).
+
+```vue
+<script setup>
+import { usePage } from '@inertiajs/vue3'
+
+const page = usePage()
+    
+const alerts = page.props._alerts
+</script>
+
+<template>
+  <div v-for="alert in alerts">
+    <!-- ... -->
+  </div>
+</template>
+```
+
 ## Testing
 
 To test if alerts were generated, you can use `Alert::fake()`, which works like any other faked services. It returns a fake Alert Bag that holds a copy of all alerts generated, which exposes some convenient assertion methods.
