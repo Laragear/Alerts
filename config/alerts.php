@@ -33,7 +33,7 @@ return [
     | Default tags
     |--------------------------------------------------------------------------
     |
-    | Alerts support tagging, meanining you can filter which alerts to present
+    | Alerts support tagging which allows you to filter which alerts to present
     | in your frontend by a name, like "global" or "admin". This contains the
     | default tags all Alerts made in your application will have by default.
     |

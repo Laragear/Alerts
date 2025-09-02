@@ -14,12 +14,16 @@ use function data_set;
 class AddAlertsToJson
 {
     /**
+     * The base signature of the middleware.
+     *
+     * @const  string
+     */
+    public const SIGNATURE = 'alerts.json';
+
+    /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  string|null  $key
-     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     * @param  \Closure(\Illuminate\Http\Request):(\Illuminate\Http\Response|\Illuminate\Http\JsonResponse)  $next
      */
     public function handle(Request $request, Closure $next, ?string $key = null): JsonResponse|Response
     {
