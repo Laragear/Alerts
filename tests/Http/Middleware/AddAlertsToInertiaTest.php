@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use Inertia\Middleware;
 use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
+
 use function alert;
 use function response;
 
@@ -58,16 +59,16 @@ class AddAlertsToInertiaTest extends TestCase
 
         $this->get('test')
             ->assertInertia(static function (AssertableInertia $page): void {
-            $page->component('test')
-                ->where('foo', 'bar')
-                ->where('_alerts', [
-                    [
-                        'dismissible' => false,
-                        'message' => 'foo',
-                        'types' => ['bar', 'quz'],
-                    ],
-                ]);
-        });
+                $page->component('test')
+                    ->where('foo', 'bar')
+                    ->where('_alerts', [
+                        [
+                            'dismissible' => false,
+                            'message' => 'foo',
+                            'types' => ['bar', 'quz'],
+                        ],
+                    ]);
+            });
     }
 
     public function test_adds_alerts_when_when_inertia_response_and_is_empty(): void
@@ -83,9 +84,9 @@ class AddAlertsToInertiaTest extends TestCase
 
         $this->get('test')
             ->assertInertia(static function (AssertableInertia $page): void {
-            $page->component('test')
-                ->where('foo', 'bar')
-                ->where('_alerts', []);
-        });
+                $page->component('test')
+                    ->where('foo', 'bar')
+                    ->where('_alerts', []);
+            });
     }
 }

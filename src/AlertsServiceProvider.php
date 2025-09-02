@@ -63,7 +63,6 @@ class AlertsServiceProvider extends ServiceProvider
             Http\Middleware\AddAlertsToInertia::SIGNATURE, Http\Middleware\AddAlertsToInertia::class
         );
 
-
         if ($this->app->runningInConsole()) {
             $this->publishes([static::CONFIG => $this->app->configPath('alerts.php')], 'config');
             // @phpstan-ignore-next-line
