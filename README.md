@@ -384,6 +384,7 @@ Let's examine the configuration array, which is quite simple:
 
 return [
     'renderer' => 'bootstrap',
+    'session' => true,
     'key' => '_alerts',
     'tags' => 'default',
 ];
@@ -400,6 +401,18 @@ return [
 This picks the Renderer to use when transforming Alerts metadata into HTML.
 
 This package ships with [Bootstrap 5](https://getbootstrap.com) and [Tailwind CSS](https://tailwindcss.com/) renderers, but you can [create your own](#renderers) for other frontend frameworks like [Bulma.io](https://bulma.io/), [UI kit](https://getuikit.com/), [INK](http://ink.sapo.pt/), or even your own custom frontend framework.
+
+### Session
+
+```php
+return [
+    'session' => true,
+];
+```
+
+When your application frontend is detached from the backend, like when using JavaScript or SPA, there is little to no benefit on storing the alerts into the session, especially is your alerts are meant to be ephemeral (like toasts). You will probably send them through your application JSON response [using the included middleware](#sending-json-alerts).
+
+By disabling this with `false`, your session may be leaner since that logic si bypassed. 
 
 ### Session Key
 
