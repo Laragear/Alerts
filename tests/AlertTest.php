@@ -5,6 +5,7 @@ namespace Tests;
 use BadMethodCallException;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Fluent;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
 
@@ -163,6 +164,7 @@ class AlertTest extends TestCase
                 'message' => 'foo',
                 'types' => ['bar', 'foo'],
                 'dismissible' => true,
+                'metadata' => [],
             ],
             $alert->toArray()
         );
@@ -179,7 +181,7 @@ class AlertTest extends TestCase
 
         static::assertJson(json_encode($alert));
         static::assertEquals(
-            '{"message":"foo","types":["bar","foo"],"dismissible":true}',
+            '{"message":"foo","types":["bar","foo"],"dismissible":true,"metadata":[]}',
             $alert->toJson()
         );
     }
@@ -192,12 +194,14 @@ class AlertTest extends TestCase
                 'types' => ['foo', 'bar'],
                 'dismissible' => true,
                 'persist_key' => 'baz',
+                'metadata' => ['foo' => 'bar'],
             ]
         );
 
         static::assertEquals('foo', $alert->getMessage());
         static::assertEquals(['foo', 'bar'], $alert->getTypes());
         static::assertTrue($alert->isDismissible());
+        static::assertSame('bar', $alert->getMetadata('foo'));
     }
 
     public function test_abandons_itself(): void
@@ -227,11 +231,45 @@ class AlertTest extends TestCase
         static::assertSame(['bar', 'foo'], $alert->getTags());
     }
 
+    public function test_metadata(): void
+    {
+        $alert = alert()->new();
+
+        $alert->metadata('foo', 'bar');
+
+        static::assertSame('bar', $alert->getMetadata()->get('foo'));
+        static::assertNull($alert->getMetadata()->get('bar'));
+
+        $alert->metadata('foo', 'baz');
+
+        static::assertSame('baz', $alert->getMetadata()->get('foo'));
+
+        $alert->metadata(['quz' => 'qux']);
+
+        static::assertSame('qux', $alert->getMetadata()->get('quz'));
+    }
+
+    public function test_get_metadata(): void
+    {
+        $alert = alert()->new();
+
+        $alert->metadata([
+            'foo' => 'bar',
+        ]);
+
+        static::assertInstanceOf(Fluent::class, $alert->getMetadata());
+
+        static::assertSame('bar', $alert->getMetadata('foo'));
+        static::assertNull($alert->getMetadata('invalid'));
+        static::assertSame('default', $alert->getMetadata('invalid', 'default'));
+        static::assertSame('default', $alert->getMetadata('invalid', fn () => 'default'));
+    }
+
     public function test_to_string(): void
     {
         $alert = (new Alert(app(Bag::class)))->message('foo')->types('bar');
 
-        static::assertEquals('{"message":"foo","types":["bar"],"dismissible":false}', (string) $alert);
+        static::assertEquals('{"message":"foo","types":["bar"],"dismissible":false,"metadata":[]}', (string) $alert);
     }
 
     public function test_handle_calls_as_type_with_message(): void
