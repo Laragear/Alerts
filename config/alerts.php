@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Save alerts in the session
+    |--------------------------------------------------------------------------
+    |
+    | Here you may disable setting alerts into the session if your app frontend
+    | is detached from your backend. If that's the case, you should complement
+    | this with one of the included middleware to add alerts to the response.
+    |
+    */
+
+    'session' => true,
+
+    /*
+    |--------------------------------------------------------------------------
     | Session key
     |--------------------------------------------------------------------------
     |

@@ -34,7 +34,8 @@ class AlertsServiceProvider extends ServiceProvider
             static function (Application $app): Http\Middleware\StoreAlertsInSession {
                 return new Http\Middleware\StoreAlertsInSession(
                     $app->make(Bag::class),
-                    $app->make('config')->get('alerts.key')
+                    $app->make('config')->get('alerts.key'),
+                    $app->make('config')->get('alerts.session'),
                 );
             }
         );
