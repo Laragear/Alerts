@@ -44,7 +44,7 @@ class StoreAlertsInSession
      */
     protected function shouldSetAlertsIntoSession(Request $request): bool
     {
-        if (!$this->bypass) {
+        if (! $this->bypass) {
             return false;
         }
 
