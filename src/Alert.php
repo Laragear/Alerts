@@ -6,11 +6,13 @@ use BadMethodCallException;
 use Countable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Support\Fluent;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 use JsonSerializable;
 use Stringable;
 
+use function array_merge;
 use function is_array;
 use function json_encode;
 use function sort;
@@ -48,6 +50,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
         protected array $links = [],
         protected bool $dismissible = false,
         protected array $tags = [],
+        protected Fluent $metadata = new Fluent()
     ) {
         //
     }
@@ -126,6 +129,21 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     public function getTags(): array
     {
         return $this->tags;
+    }
+
+    /**
+     * Returns the alert metadata.
+     *
+     * @template TGetDefault
+     *
+     * @param  TGetDefault|(\Closure(): TGetDefault)  $default
+     * @return TGetDefault|\Illuminate\Support\Fluent|mixed
+     */
+    public function getMetadata(?string $key = null, mixed $default = null): mixed
+    {
+        return $key !== null
+            ? $this->metadata->get($key, $default)
+            : $this->metadata;
     }
 
     /**
@@ -309,9 +327,23 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     }
 
     /**
+     * Sets a value into the alert metadata.
+     */
+    public function metadata(array|string $key, mixed $value = null): static
+    {
+        if (is_array($key)) {
+            $this->metadata->fill($key);
+        } else {
+            $this->metadata->set($key, $value);
+        }
+
+        return $this;
+    }
+
+    /**
      * Get the instance as an array.
      *
-     * @return array{message: string, types: string[], dismissible: bool}
+     * @return array{message: string, types: string[], dismissible: bool, metadata: array}
      */
     public function toArray(): array
     {
@@ -319,6 +351,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
             'message' => $this->message,
             'types' => $this->types,
             'dismissible' => $this->dismissible,
+            'metadata' => $this->metadata->toArray(),
         ];
     }
 
@@ -335,7 +368,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     /**
      * Specify data which should be serialized to JSON.
      *
-     * @return array{message: string, types: string[], dismissible: bool }
+     * @return array{message: string, types: string[], dismissible: bool, metadata: array}
      */
     public function jsonSerialize(): array
     {
@@ -355,7 +388,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
      *
      * @codeCoverageIgnore
      *
-     * @return array{persist_key: string|null, message: string, types: array<string>, links: array<int, object{replace: string, url: string, blank: bool}>, dismissible: bool, tags: array<string>}
+     * @return array{persist_key: string|null, message: string, types: array<string>, links: array<int, object{replace: string, url: string, blank: bool}>, dismissible: bool, tags: array<string>, metadata: array}
      */
     public function __serialize(): array
     {
@@ -366,6 +399,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
             'links' => $this->links,
             'dismissible' => $this->dismissible,
             'tags' => $this->tags,
+            'metadata' => $this->metadata->toArray(),
         ];
     }
 
@@ -374,7 +408,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
      *
      * @codeCoverageIgnore
      *
-     * @param  array{persist_key: string|null, message: string, types: array<string>, links: array<int, object{replace: string, url: string, blank: bool}>, dismissible: bool, tags: array<string>}  $data
+     * @param  array{persist_key: string|null, message: string, types: array<string>, links: array<int, object{replace: string, url: string, blank: bool}>, dismissible: bool, tags: array<string>, metadata: array}  $data
      */
     public function __unserialize(array $data): void
     {
@@ -384,6 +418,7 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
         $this->links = $data['links'];
         $this->dismissible = $data['dismissible'];
         $this->tags = $data['tags'];
+        $this->metadata = new Fluent($data['metadata']);
     }
 
     /**
@@ -417,6 +452,15 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
             [$bag, $alert] = [app(Bag::class), $bag];
         }
 
-        return new static($bag, null, $alert['message'], $alert['types'], [], $alert['dismissible'] ?? false);
+        return new static(
+            $bag,
+            null,
+            $alert['message'],
+            $alert['types'],
+            [],
+            $alert['dismissible'] ?? false,
+            $alert['tags'] ?? [],
+            new Fluent($alert['metadata'] ?? []),
+        );
     }
 }

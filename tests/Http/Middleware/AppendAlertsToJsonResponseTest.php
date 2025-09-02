@@ -28,6 +28,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
                         'dismissible' => false,
                         'message' => 'foo',
                         'types' => ['bar', 'quz'],
+                        'metadata' => [],
                     ],
                 ],
             ]
@@ -58,6 +59,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
                         'message' => 'foo',
                         'types' => [],
                         'dismissible' => false,
+                        'metadata' => [],
                     ],
                 ],
             ]
@@ -131,6 +133,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
                                     'dismissible' => false,
                                     'message' => 'foo',
                                     'types' => ['bar', 'quz'],
+                                    'metadata' => [],
                                 ],
                             ],
                         ],
@@ -155,6 +158,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
                 'dismissible' => false,
                 'message' => 'foo',
                 'types' => ['bar', 'quz'],
+                'metadata' => [],
             ],
         ]]);
     }
