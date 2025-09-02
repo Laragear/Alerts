@@ -164,7 +164,7 @@ class AlertTest extends TestCase
                 'message' => 'foo',
                 'types' => ['bar', 'foo'],
                 'dismissible' => true,
-                'metadata' => []
+                'metadata' => [],
             ],
             $alert->toArray()
         );
@@ -194,7 +194,7 @@ class AlertTest extends TestCase
                 'types' => ['foo', 'bar'],
                 'dismissible' => true,
                 'persist_key' => 'baz',
-                'metadata' => ['foo' => 'bar']
+                'metadata' => ['foo' => 'bar'],
             ]
         );
 
@@ -262,7 +262,7 @@ class AlertTest extends TestCase
         static::assertSame('bar', $alert->getMetadata('foo'));
         static::assertNull($alert->getMetadata('invalid'));
         static::assertSame('default', $alert->getMetadata('invalid', 'default'));
-        static::assertSame('default', $alert->getMetadata('invalid', fn() => 'default'));
+        static::assertSame('default', $alert->getMetadata('invalid', fn () => 'default'));
     }
 
     public function test_to_string(): void
