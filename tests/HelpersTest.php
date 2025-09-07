@@ -21,6 +21,7 @@ class HelpersTest extends TestCase
             'message' => 'test-message',
             'types' => [],
             'dismissible' => false,
+            'metadata' => [],
         ], $alert->toArray());
     }
 
@@ -33,6 +34,7 @@ class HelpersTest extends TestCase
             'message' => 'test-message',
             'types' => ['info'],
             'dismissible' => false,
+            'metadata' => [],
         ], $alert->toArray());
     }
 }

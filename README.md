@@ -369,6 +369,48 @@ Using the [Alerts directive](#quickstart), you can filter the Alerts to render b
 <x-alerts-container :tags="['user', 'admin']" />
 ```
 
+### Metadata
+
+Sometimes you will want to add metadata to the alert. For example, you may want to add a custom icon, or a piece of text that should be treated differently. For these cases, you may use the `metadata()` method to set a scalar value into the alert.
+
+```php
+use Laragear\Alerts\Facades\Alert;
+
+// You can see your package status in the {tracking}.
+Alert::message('Your disk is almost full!')
+    ->metadata('icon', 'i-heroicons-server');
+```
+
+When rendering the metadata in a Blade view, you may retrieve the metadata using `getMetadata()`. Using a key will return the value or a default, while using no arguments it will return the underlying _Fluent_ instance.
+
+```bladehtml
+<div class="alert alert-warning" role="alert">
+    <x-icon :icon="$alert->getMetadata('icon')" />
+    
+    <p>{{ $alert->getMessages() }}</p>
+</div>
+```
+
+When rendering the metadata as JSON, it will be part of the `metadata` key.
+
+```json
+{
+    "alert": {
+        "message": "Email delivered",
+        "types": [
+            "success",
+            "important"
+        ],
+        "dismissible": false,
+        "metadata": []
+    }
+}
+```
+
+> [!WARNING]
+> 
+> Always try to use metadata values as scalar values (arrays, strings, integers...) or castable to scalar values. This way you won't have problem on serialization/deserialization. 
+
 ## Configuration
 
 Alerts will work out-of-the-box with some common defaults, but if you need a better approach for your particular application, you can configure some parameters. First, publish the configuration file.
@@ -521,7 +563,8 @@ Sometimes your application may receive a JSON Alert from an external service usi
             "success",
             "important"
         ],
-        "dismissible": false
+        "dismissible": false,
+        "metadata": []
     }
 }
 ```
@@ -574,7 +617,8 @@ When you receive a JSON Response, you will see the alerts appended to whichever 
             {
                 "message": "The user has been created!",
                 "types" : ["success", "important"],
-                "dismiss": true
+                "dismiss": true,
+                "metadata": []
             }
         ]
     }
