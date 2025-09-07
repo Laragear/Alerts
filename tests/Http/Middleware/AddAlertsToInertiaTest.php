@@ -2,6 +2,7 @@
 
 namespace Tests\Http\Middleware;
 
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithViews;
 use Inertia\Inertia;
 use Inertia\Middleware;
@@ -88,6 +89,30 @@ class AddAlertsToInertiaTest extends TestCase
                 $page->component('test')
                     ->where('foo', 'bar')
                     ->where('_alerts', []);
+            });
+    }
+
+    public function test_adds_alerts_to_inertia_after_redirection(): void
+    {
+        $router = $this->app->make('router');
+
+        $router->get('redirect', function () {
+            alert('test-alert');
+
+            return redirect()->to('/test');
+        })->middleware(['web', Middleware::class, 'alerts.inertia']);
+
+        $router->get('test', fn () => Inertia::render('test', ['foo' => 'bar']))
+            ->middleware(['web', Middleware::class, 'alerts.inertia']);
+
+        $this->followingRedirects()
+            ->get('redirect')
+            ->assertInertia(static function (AssertableInertia $page): void {
+                $page->component('test')
+                    ->where('foo', 'bar')
+                    ->where('_alerts', [
+                        ['dismissible' => false, 'message' => 'test-alert', 'metadata' => [], 'types' => []]
+                    ]);
             });
     }
 }
