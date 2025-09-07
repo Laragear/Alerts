@@ -2,7 +2,6 @@
 
 namespace Tests\Http\Middleware;
 
-use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithViews;
 use Inertia\Inertia;
 use Inertia\Middleware;
@@ -111,7 +110,7 @@ class AddAlertsToInertiaTest extends TestCase
                 $page->component('test')
                     ->where('foo', 'bar')
                     ->where('_alerts', [
-                        ['dismissible' => false, 'message' => 'test-alert', 'metadata' => [], 'types' => []]
+                        ['dismissible' => false, 'message' => 'test-alert', 'metadata' => [], 'types' => []],
                     ]);
             });
     }
