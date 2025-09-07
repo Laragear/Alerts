@@ -12,7 +12,6 @@ use Illuminate\Support\Traits\Macroable;
 use JsonSerializable;
 use Stringable;
 
-use function array_merge;
 use function is_array;
 use function json_encode;
 use function sort;
