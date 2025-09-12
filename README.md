@@ -629,6 +629,39 @@ When you receive a JSON Response, you will see the alerts appended to whichever 
 >
 > If your key is already present in the JSON response, **the key will be overwritten**.
 
+#### Sending Alerts with Laravel Inertia
+
+If you're using [Laravel Inertia](https://inertiajs.com/), you **should not** use the `alerts.json` middleware, but instead, [_share_](https://inertiajs.com/shared-data) your alerts to Inertia responses. 
+
+For example, you may merge the shared data through your `App\Http\Middleware\HandleInertiaRequests` middleware, or using the `Inertia\Inertia::share()` helper anywhere in your app. The alerts can be retrieved using the `collect()` method of the `Alert` facade.
+
+```php
+namespace App\Http\Middleware;
+
+use Illuminate\Http\Request;
+use Inertia\Middleware;
+use Laragear\Alerts\Facades\Alert;
+
+class HandleInertiaRequests extends Middleware
+{
+    // ...
+    
+    /**
+     * Define the props that are shared by default.
+     *
+     * @return array<string, mixed>
+     */
+    public function share(Request $request): array
+    {
+        return array_merge(parent::share($request), [
+            config('alerts.key') => Alert::collect()
+        ];
+    }
+}
+```
+
+From there, you should be able to access the alerts in your frontend. [Accessing](https://inertiajs.com/shared-data#accessing-shared-data) these will depend on your frontend framework.
+
 ## Testing
 
 To test if alerts were generated, you can use `Alert::fake()`, which works like any other faked services. It returns a fake Alert Bag that holds a copy of all alerts generated, which exposes some convenient assertion methods.
