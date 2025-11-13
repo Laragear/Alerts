@@ -2,35 +2,56 @@
 
 namespace Laragear\Alerts\Blade\Components;
 
+use Illuminate\Support\Collection;
 use Illuminate\View\Component;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
-use Laragear\Alerts\Contracts\Renderer as RendererContract;
+use function array_map;
+use function explode;
+use function get_class;
+use function in_array;
+use function is_string;
+use function view;
 
 class Container extends Component
 {
     /**
      * Create a new component instance.
+     *
+     * @param  class-string<\Laragear\Alerts\Alert>[]  $filter
      */
-    public function __construct(
-        protected Bag $bag,
-        protected RendererContract $renderer,
-        protected array|string|null $tags = null)
+    public function __construct(protected Bag $bag, public string|array $filter = [])
     {
-        // If the developer doesn't set tags, we will use the default list.
-        $this->tags = (array) $tags ?: $bag->getDefaultTags();
+        // Normalize the filters if the developer passed a string with comma-separated class names.
+        if (is_string($this->filter)) {
+            $this->filter = array_map('trim', explode(',', $this->filter));
+        }
     }
 
     /**
-     * Get the view / view contents that represent the component.
+     * @inheritDoc
      */
-    public function render(): string
+    public function render(): mixed
     {
-        return $this->renderer->render(
-            $this->bag->collect()->filter(function (Alert $alert): bool {
-                return $alert->hasAnyTag(...$this->tags);
-            })
-        );
+        return view('alerts::container', [
+            'alerts' => $this->alerts(),
+        ]);
+    }
+
+    /**
+     * Returns a list of filtered alerts.
+     *
+     * @return  \Illuminate\Support\Collection<int, \Laragear\Alerts\Alert>
+     */
+    protected function alerts(): Collection
+    {
+        return $this->bag
+            ->collect()
+            ->when($this->filter, static function (Collection $alerts, array $classes): Collection {
+                return $alerts->filter(static function (Alert $alert) use ($classes): bool {
+                    return in_array(get_class($alert), $classes, true);
+                });
+            });
     }
 
     /**
@@ -38,6 +59,6 @@ class Container extends Component
      */
     public function shouldRender(): bool
     {
-        return $this->bag->collect()->isNotEmpty();
+        return $this->alerts()->isNotEmpty();
     }
 }

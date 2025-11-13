@@ -2,304 +2,268 @@
 
 namespace Tests;
 
-use BadMethodCallException;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Fluent;
+use Illuminate\Container\Container;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Optional;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
-
-use function alert;
-use function app;
+use Mockery;
+use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use Tests\Fixtures\TestAlert;
+use Tests\Fixtures\TestAlertWithDefaults;
+use function json_decode;
+use function json_encode;
+use function serialize;
+use function unserialize;
 
 class AlertTest extends TestCase
 {
-    public function test_creates_default_instance(): void
+    protected function setUp(): void
     {
-        $alert = alert()->new();
+        parent::setUp();
 
-        static::assertEmpty($alert->getMessage());
-        static::assertEmpty($alert->getTypes());
-        static::assertFalse($alert->isDismissible());
+        Container::setInstance();
+
+        TestAlert::flushMacros();
     }
 
-    public function test_alert_can_receive_empty_message(): void
+    protected function tearDown(): void
     {
-        static::assertSame('', alert()->new()->getMessage());
-        static::assertSame('', alert()->message('')->getMessage());
-        static::assertSame('', alert()->raw('')->getMessage());
-        static::assertSame('', alert()->trans('')->getMessage());
-        static::assertSame('', alert()->transChoice('', 10)->getMessage());
+        Mockery::close();
     }
 
-    public function test_alert_set_escaped_message(): void
+    public function test_instances_alert_with_attributes(): void
     {
-        $alert = alert()->new();
+        $alert = new TestAlert($attributes = ['foo' => 'bar', 'baz' => ['cuz']]);
 
-        $alert->message('❤ <script></script>');
-
-        static::assertEquals('❤ &lt;script&gt;&lt;/script&gt;', $alert->getMessage());
+        static::assertSame($attributes, $alert->all());
     }
 
-    public function test_alert_set_types(): void
+    public function test_instances_alert_with_defaults(): void
     {
-        $alert = alert()->new();
+        $alert = new TestAlertWithDefaults(['foo' => 'bar', 'color' => 'red']);
 
-        $alert->types('foo', 'bar', 'quz');
-
-        static::assertEquals(['bar', 'foo', 'quz'], $alert->getTypes());
+        static::assertSame(['icon' => 'check', 'color' => 'red', 'foo' => 'bar'], $alert->all());
     }
 
-    public function test_alert_set_raw_message(): void
+    public function test_uses_custom_method(): void
     {
-        $alert = alert()->new();
+        $alert = new TestAlert(['foo' => 'bar', 'baz' => ['cuz']]);
 
-        $alert->raw('❤ <script></script>');
+        $alert->body('test-body');
 
-        static::assertEquals('❤ <script></script>', $alert->getMessage());
+        static::assertSame('test-body', $alert->body);
     }
 
-    public function test_alert_translates_message(): void
+    public function test_persist_as(): void
     {
-        Lang::shouldReceive('get')
-            ->once()
-            ->with('test-key', ['foo' => 'bar'], 'test_lang')
-            ->andReturn('test-translation');
+        $mock = Mockery::mock(Bag::class);
+        $mock->expects('markPersisted')->withArgs(function ($key, $index) {
+            static::assertSame('test-persist', $key);
+            static::assertSame(10, $index);
 
-        $alert = alert()->new();
+            return true;
+        })->andReturnSelf();
 
-        $alert->trans('test-key', ['foo' => 'bar'], 'test_lang');
+        $alert = (new TestAlert())->setIndex(10)->setIndex(10)->setAlertBag($mock);
 
-        static::assertEquals('test-translation', $alert->getMessage());
+        $alert->persistAs('test-persist');
+        static::assertSame('test-persist', $alert->getPersistenceKey());
     }
 
-    public function test_alert_translates_pluralizable_message(): void
+    public function test_abandon(): void
     {
-        Lang::shouldReceive('choice')
-            ->once()
-            ->with('test-key', 10, ['foo' => 'bar'], 'test_lang')
-            ->andReturn('test-translation');
+        $mock = Mockery::mock(Bag::class);
+        $mock->expects('abandon')->withArgs(function ($key) {
+            static::assertSame('test-persist', $key);
 
-        $alert = alert()->new();
+            return true;
+        })->andReturnTrue();
 
-        $alert->transChoice('test-key', 10, ['foo' => 'bar'], 'test_lang');
+        $alert = (new TestAlert())->setIndex(10)->setIndex(10)->setAlertBag($mock);
 
-        static::assertEquals('test-translation', $alert->getMessage());
+        $alert->abandon('test-persist');
+
+        static::assertNull($alert->getPersistenceKey());
     }
 
-    public function test_alert_receives_link_away(): void
+    public function test_fill_with_iterable(): void
     {
-        $alert = alert()->new()->message('foo {bar} baz')->away('bar', 'https://foo-bar.com');
+        $attributes = new Collection($values = ['foo' => 'bar', 'baz' => 'quz']);
 
-        static::assertEquals(
-            [(object) ['replace' => 'bar', 'url' => 'https://foo-bar.com', 'blank' => true]],
-            $alert->getLinks()
-        );
+        $alert = new TestAlert();
+
+        $alert->fill($attributes);
+
+        static::assertSame($values, $alert->all());
     }
 
-    public function test_alert_receives_link_to(): void
+    public function test_to_html_throws_by_default(): void
     {
-        URL::shouldReceive('to')
-            ->with('/foo-bar', [], false)
-            ->andReturn('http://localhost/foo-bar');
+        $alert = new TestAlert();
 
-        $alert = alert()->new()->message('foo {bar} baz')->to('bar', '/foo-bar');
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('No view is assigned to render the [Tests\Fixtures\TestAlert] alert.');
 
-        static::assertEquals(
-            [(object) ['replace' => 'bar', 'url' => 'http://localhost/foo-bar', 'blank' => false]],
-            $alert->getLinks()
-        );
+        $alert->toHtml();
     }
 
-    public function test_alert_receives_link_route(): void
+    public function test_to_array(): void
     {
-        URL::shouldReceive('route')
-            ->with('test', [])
-            ->andReturn('http://localhost/test');
+        $attributes = ['foo' => 'bar', 'baz' => 'quz'];
 
-        $alert = alert()->new()->message('foo {bar} baz')->route('bar', 'test');
+        $alert = new TestAlert($attributes);
 
-        static::assertEquals(
-            [(object) ['replace' => 'bar', 'url' => 'http://localhost/test', 'blank' => false]],
-            $alert->getLinks()
-        );
+        static::assertSame($attributes, $alert->toArray());
     }
 
-    public function test_alert_receives_link_action(): void
+    public function test_all_returns_all_keys(): void
     {
-        URL::shouldReceive('action')
-            ->with('DummyController@action', [])
-            ->andReturn('http://localhost/test');
+        $alert = new TestAlert(['foo' => 'bar', 'baz' => 'quz']);
 
-        $alert = alert()->new()->message('foo {bar} baz')->action('bar', 'DummyController@action');
-
-        static::assertEquals(
-            [(object) ['replace' => 'bar', 'url' => 'http://localhost/test', 'blank' => false]],
-            $alert->getLinks()
-        );
+        static::assertSame(['foo' => 'bar', 'baz' => 'quz'], $alert->all());
     }
 
-    public function test_alert_is_dismissible(): void
+    public function test_all_returns_some_keys(): void
     {
-        $alert = alert()->new();
+        $alert = new TestAlert(['foo' => 'bar', 'baz' => 'quz', 'qux' => 'doge']);
 
-        static::assertFalse($alert->isDismissible());
-
-        $alert->dismiss();
-
-        static::assertTrue($alert->isDismissible());
+        static::assertSame(['qux' => 'doge', 'foo' => 'bar',], $alert->all('qux', 'foo'));
     }
 
-    public function test_alert_to_array(): void
+    public function test_all_returns_one_key(): void
     {
-        $alert = alert()->new();
+        $alert = new TestAlert(['foo' => 'bar', 'baz' => 'quz', 'qux' => 'doge']);
 
-        $alert->message('foo')
-            ->types('foo', 'bar')
-            ->dismiss()
-            ->persistAs('baz');
-
-        static::assertEquals(
-            [
-                'message' => 'foo',
-                'types' => ['bar', 'foo'],
-                'dismissible' => true,
-                'metadata' => [],
-            ],
-            $alert->toArray()
-        );
+        static::assertSame(['qux' => 'doge'], $alert->all('qux'));
     }
 
-    public function test_array_to_json(): void
+    public function test_all_uses_dot_notation(): void
     {
-        $alert = alert()->new();
+        $alert = new TestAlert(['foo' => 'bar', 'baz' => ['qux' => 'doge', 'cogar', 'asdfg']]);
 
-        $alert->message('foo')
-            ->types('foo', 'bar')
-            ->dismiss()
-            ->persistAs('baz');
+        static::assertSame(['baz' => ['qux' => 'doge']], $alert->all('baz.qux'));
+    }
+
+    public function test_get(): void
+    {
+        $alert = new TestAlert(['foo' => 'bar', 'baz' => ['qux' => 'doge', 'cogar', 'asdfg']]);
+
+        static::assertNull($alert->get('invalid'));
+        static::assertSame('bar', $alert->get('invalid', 'bar'));
+        static::assertSame('bar', $alert->get('invalid', fn () => 'bar'));
+        static::assertSame('bar', $alert->get('foo'));
+        static::assertSame('doge', $alert->get('baz.qux'));
+    }
+
+    public function test_set(): void
+    {
+        $alert = new TestAlert(['foo' => 'bar', 'baz' => ['qux' => 'doge', 'cogar' => 'asdfg']]);
+
+        $alert->set('quz', 'doge');
+
+        static::assertSame('doge', $alert->get('quz'));
+
+        $alert->set('baz.foo', 'bar');
+
+        static::assertSame('bar', $alert->get('baz.foo'));
+
+        $alert->set('baz.qux', 'bar');
+
+        static::assertSame('bar', $alert->get('baz.qux'));
+    }
+
+    public function test_to_json(): void
+    {
+        $alert = new TestAlert(['foo' => 'bar']);
+
+        static::assertJson($alert->toJson());
+        static::assertSame(['foo' => 'bar'], json_decode($alert->toJson(), true));
+    }
+
+    public function test_json_serialize(): void
+    {
+        $alert = new TestAlert(['foo' => 'bar']);
 
         static::assertJson(json_encode($alert));
-        static::assertEquals(
-            '{"message":"foo","types":["bar","foo"],"dismissible":true,"metadata":[]}',
-            $alert->toJson()
-        );
+        static::assertSame(['foo' => 'bar'], json_decode(json_encode($alert), true));
     }
 
-    public function test_alert_from_json(): void
+    public function test_property_access(): void
     {
-        $alert = Alert::fromArray(
-            [
-                'message' => 'foo',
-                'types' => ['foo', 'bar'],
-                'dismissible' => true,
-                'persist_key' => 'baz',
-                'metadata' => ['foo' => 'bar'],
-            ]
-        );
+        $alert = new TestAlert(['foo' => 'bar']);
 
-        static::assertEquals('foo', $alert->getMessage());
-        static::assertEquals(['foo', 'bar'], $alert->getTypes());
-        static::assertTrue($alert->isDismissible());
-        static::assertSame('bar', $alert->getMetadata('foo'));
+        static::assertFalse(isset($alert->bar));
+        static::assertTrue(isset($alert->foo));
+
+        static::assertNull($alert->bar);
+        static::assertSame('bar', $alert->foo);
+
+        $alert->bar = 'baz';
+
+        static::assertSame('baz', $alert->bar);
+
+        unset($alert->bar);
+
+        static::assertNull($alert->bar);
     }
 
-    public function test_abandons_itself(): void
+    public function test_serialization(): void
     {
-        $alert = alert()->new();
+        $alert = new TestAlert(['foo' => 'bar']);
+        $alert->setIndex(11)->setPersistenceKey('test-alert')->setAlertBag(Mockery::mock(Bag::class));
 
-        $alert->message('foo')
-            ->types('foo', 'bar')
-            ->dismiss()
-            ->persistAs('baz');
+        /** @var \Tests\Fixtures\TestAlert $alert */
+        $alert = unserialize(serialize($alert));
 
-        static::assertNotEmpty(app(Bag::class)->getPersisted());
-
-        $alert->abandon();
-
-        static::assertEmpty(app(Bag::class)->getPersisted());
+        static::assertSame(['foo' => 'bar'], $alert->all());
+        static::assertSame(11, $alert->getIndex());
+        static::assertSame('test-alert', $alert->getPersistenceKey());
     }
 
-    public function test_tags(): void
+    public function test_push(): void
     {
-        $alert = alert()->new();
+        Container::setInstance($container = new Container());
+        $container->instance(Bag::class, $mock = Mockery::mock(Bag::class));
+        $mock->expects('add')->withArgs(function (Alert $alert) use ($mock): true {
+            $alert->setAlertBag($mock);
 
-        static::assertSame(['default'], $alert->getTags());
+            return true;
+        });
 
-        $alert->tag('foo', 'bar');
+        $attributes = ['foo' => 'bar'];
 
-        static::assertSame(['bar', 'foo'], $alert->getTags());
+        $alert = TestAlert::push($attributes);
+
+        static::assertSame($attributes, $alert->all());
+        static::assertSame($mock, $alert->getAlertBag());
     }
 
-    public function test_metadata(): void
+    public function test_push_when(): void
     {
-        $alert = alert()->new();
+        static::assertInstanceOf(Optional::class, TestAlert::pushWhen(false, ['foo' => 'bar']));
+        static::assertInstanceOf(Optional::class, TestAlert::pushWhen(fn () => false, ['foo' => 'bar']));
 
-        $alert->metadata('foo', 'bar');
+        Container::setInstance($container = new Container());
+        $container->instance(Bag::class, $mock = Mockery::mock(Bag::class));
+        $mock->expects('add')->twice();
 
-        static::assertSame('bar', $alert->getMetadata()->get('foo'));
-        static::assertNull($alert->getMetadata()->get('bar'));
-
-        $alert->metadata('foo', 'baz');
-
-        static::assertSame('baz', $alert->getMetadata()->get('foo'));
-
-        $alert->metadata(['quz' => 'qux']);
-
-        static::assertSame('qux', $alert->getMetadata()->get('quz'));
+        static::assertInstanceOf(TestAlert::class, TestAlert::pushWhen(true, ['foo' => 'bar']));
+        static::assertInstanceOf(TestAlert::class, TestAlert::pushWhen(fn () => true, ['foo' => 'bar']));
     }
 
-    public function test_get_metadata(): void
+    public function test_push_unless(): void
     {
-        $alert = alert()->new();
+        static::assertInstanceOf(Optional::class, TestAlert::pushUnless(true, ['foo' => 'bar']));
+        static::assertInstanceOf(Optional::class, TestAlert::pushUnless(fn () => true, ['foo' => 'bar']));
 
-        $alert->metadata([
-            'foo' => 'bar',
-        ]);
+        Container::setInstance($container = new Container());
+        $container->instance(Bag::class, $mock = Mockery::mock(Bag::class));
+        $mock->expects('add')->twice();
 
-        static::assertInstanceOf(Fluent::class, $alert->getMetadata());
-
-        static::assertSame('bar', $alert->getMetadata('foo'));
-        static::assertNull($alert->getMetadata('invalid'));
-        static::assertSame('default', $alert->getMetadata('invalid', 'default'));
-        static::assertSame('default', $alert->getMetadata('invalid', fn () => 'default'));
-    }
-
-    public function test_to_string(): void
-    {
-        $alert = (new Alert(app(Bag::class)))->message('foo')->types('bar');
-
-        static::assertEquals('{"message":"foo","types":["bar"],"dismissible":false,"metadata":[]}', (string) $alert);
-    }
-
-    public function test_handle_calls_as_type_with_message(): void
-    {
-        $alert = alert()->new()->fooBarBaz('quz');
-
-        static::assertSame('quz', $alert->getMessage());
-        static::assertSame(['foo-bar-baz'], $alert->getTypes());
-    }
-
-    public function test_dynamic_call_without_arguments_sets_type_with_empty_message(): void
-    {
-        $alert = alert()->new()->fooBarBaz();
-
-        static::assertEmpty($alert->getMessage());
-        static::assertSame(['foo-bar-baz'], $alert->getTypes());
-    }
-
-    public function test_dynamic_call_type_respects_underscore(): void
-    {
-        $alert = alert()->new()->foo_bar_baz('quz');
-
-        static::assertSame(['foo_bar_baz'], $alert->getTypes());
-    }
-
-    public function test_exception_when_dynamic_call_has_more_than_one_argument(): void
-    {
-        $this->expectException(BadMethodCallException::class);
-        $this->expectExceptionMessage('Method Laragear\Alerts\Alert::fooBarQuz does not exist');
-
-        alert()->new()->fooBarQuz('foo', 'bar');
+        static::assertInstanceOf(TestAlert::class, TestAlert::pushUnless(false, ['foo' => 'bar']));
+        static::assertInstanceOf(TestAlert::class, TestAlert::pushUnless(fn () => false, ['foo' => 'bar']));
     }
 }
+

@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Illuminate\Contracts\Console\Kernel as ConsoleKernel;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Arr;
@@ -10,11 +11,8 @@ use Illuminate\Support\ServiceProvider;
 use Laragear\Alerts\AlertsServiceProvider;
 use Laragear\Alerts\Bag;
 use Laragear\Alerts\Blade\Components\Container;
-use Laragear\Alerts\Contracts\Renderer;
 use Laragear\Alerts\Http\Middleware\AddAlertsToJson;
 use Laragear\Alerts\Http\Middleware\StoreAlertsInSession;
-use Laragear\Alerts\RendererManager;
-use Laragear\Alerts\Renderers\BootstrapRenderer;
 
 class ServiceProviderTest extends TestCase
 {
@@ -37,17 +35,6 @@ class ServiceProviderTest extends TestCase
 
         static::assertArrayHasKey('alerts-container', $aliases);
         static::assertSame(Container::class, $aliases['alerts-container']);
-    }
-
-    public function test_registers_renderer_manager(): void
-    {
-        static::assertTrue($this->app->bound(RendererManager::class));
-    }
-
-    public function test_registers_renderer_contract_and_default_renderer(): void
-    {
-        static::assertTrue($this->app->bound(Renderer::class));
-        static::assertInstanceOf(BootstrapRenderer::class, $this->app->make(Renderer::class));
     }
 
     public function test_registers_bag(): void
@@ -84,5 +71,12 @@ class ServiceProviderTest extends TestCase
         static::assertSame([
             AlertsServiceProvider::VIEWS => $this->app->viewPath('vendor/alerts'),
         ], ServiceProvider::pathsToPublish(AlertsServiceProvider::class, 'views'));
+    }
+
+    public function test_registers_command(): void
+    {
+        $commands = $this->app->make(ConsoleKernel::class)->all();
+
+        static::assertArrayHasKey('alert:create', $commands);
     }
 }

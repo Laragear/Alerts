@@ -4,19 +4,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Renderer
-    |--------------------------------------------------------------------------
-    |
-    | When an Alert is rendered into HTML, it uses a "render" which transforms
-    | the Alert into HTML code for a given frontend framework. By default, it
-    | uses "Bootstrap 5", but you can change it or create your own renderer.
-    |
-    */
-
-    'default' => 'bootstrap',
-
-    /*
-    |--------------------------------------------------------------------------
     | Save alerts in the session
     |--------------------------------------------------------------------------
     |
@@ -40,19 +27,4 @@ return [
     */
 
     'key' => '_alerts',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Default tags
-    |--------------------------------------------------------------------------
-    |
-    | Alerts support tagging which allows you to filter which alerts to present
-    | in your frontend by a name, like "global" or "admin". This contains the
-    | default tags all Alerts made in your application will have by default.
-    |
-    | Supported: "array", "string".
-    |
-    */
-
-    'tags' => 'default',
 ];

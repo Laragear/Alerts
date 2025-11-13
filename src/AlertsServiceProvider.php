@@ -19,12 +19,6 @@ class AlertsServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(static::CONFIG, 'alerts');
 
-        $this->app->singleton(RendererManager::class);
-
-        $this->app->singleton(Contracts\Renderer::class, static function (Application $app): Contracts\Renderer {
-            return $app->make(RendererManager::class)->driver($app->make('config')->get('alerts.renderer'));
-        });
-
         $this->app->singleton(Bag::class, static function (Application $app): Bag {
             return new Bag((array) $app->make('config')->get('alerts.tags', ['default']));
         });
@@ -50,10 +44,8 @@ class AlertsServiceProvider extends ServiceProvider
         $this->loadViewComponentsAs('alerts', [Blade\Components\Container::class]);
 
         // Add the Global Middleware to the `web` group only if it exists.
-        // @phpstan-ignore-next-line
-        if (array_key_exists('web', $http->getMiddlewareGroups())) {
-            // @phpstan-ignore-next-line
-            $http->appendMiddlewareToGroup('web', Http\Middleware\StoreAlertsInSession::class);
+        if (array_key_exists('web', $http->getMiddlewareGroups())) { // @phpstan-ignore-line
+            $http->appendMiddlewareToGroup('web', Http\Middleware\StoreAlertsInSession::class); // @phpstan-ignore-line
         }
 
         $router->aliasMiddleware(
@@ -65,9 +57,10 @@ class AlertsServiceProvider extends ServiceProvider
         );
 
         if ($this->app->runningInConsole()) {
+            $this->commands(Console\Commands\AlertCreateCommand::class);
+
             $this->publishes([static::CONFIG => $this->app->configPath('alerts.php')], 'config');
-            // @phpstan-ignore-next-line
-            $this->publishes([static::VIEWS => $this->app->viewPath('vendor/alerts')], 'views');
+            $this->publishes([static::VIEWS => $this->app->viewPath('vendor/alerts')], 'views'); // @phpstan-ignore-line
         }
     }
 }

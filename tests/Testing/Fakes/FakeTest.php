@@ -5,6 +5,7 @@ namespace Tests\Testing\Fakes;
 use Illuminate\Support\Facades\Route;
 use Laragear\Alerts\Facades\Alert;
 use PHPUnit\Framework\AssertionFailedError;
+use Tests\Fixtures\TestAlert;
 use Tests\TestCase;
 
 class FakeTest extends TestCase
@@ -12,7 +13,7 @@ class FakeTest extends TestCase
     public function test_fake_bag_keeps_alerts(): void
     {
         Route::get('test', static function (): void {
-            Alert::raw('foo');
+            TestAlert::push();
         })->middleware('web');
 
         $bag = Alert::fake();
@@ -37,7 +38,7 @@ class FakeTest extends TestCase
 
         $bag = Alert::fake();
 
-        Alert::raw('foo');
+        TestAlert::push();
 
         $bag->assertEmpty();
     }
@@ -46,7 +47,7 @@ class FakeTest extends TestCase
     {
         $bag = Alert::fake();
 
-        Alert::raw('foo');
+        TestAlert::push();
 
         $bag->assertNotEmpty();
     }
@@ -64,7 +65,7 @@ class FakeTest extends TestCase
     {
         $bag = Alert::fake();
 
-        Alert::raw('foo');
+        TestAlert::push();
 
         $bag->assertHasOne();
     }
@@ -76,8 +77,8 @@ class FakeTest extends TestCase
 
         $bag = Alert::fake();
 
-        Alert::raw('foo');
-        Alert::raw('bar');
+        TestAlert::push();
+        TestAlert::push();
 
         $bag->assertHasOne();
     }
@@ -86,9 +87,9 @@ class FakeTest extends TestCase
     {
         $bag = Alert::fake();
 
-        Alert::raw('foo');
-        Alert::raw('bar');
-        Alert::raw('baz');
+        TestAlert::push();
+        TestAlert::push();
+        TestAlert::push();
 
         $bag->assertHas(3);
     }
@@ -100,9 +101,9 @@ class FakeTest extends TestCase
 
         $bag = Alert::fake();
 
-        Alert::raw('foo');
-        Alert::raw('bar');
-        Alert::raw('baz');
+        TestAlert::push();
+        TestAlert::push();
+        TestAlert::push();
 
         $bag->assertHas(2);
     }
@@ -111,7 +112,7 @@ class FakeTest extends TestCase
     {
         $bag = Alert::fake();
 
-        Alert::raw('foo')->persistAs('bar');
+        TestAlert::push()->persistAs('bar');
 
         $bag->assertPersisted('bar');
     }
@@ -123,7 +124,7 @@ class FakeTest extends TestCase
 
         $bag = Alert::fake();
 
-        Alert::raw('foo');
+        TestAlert::push();
 
         $bag->assertPersisted('bar');
     }
@@ -132,8 +133,8 @@ class FakeTest extends TestCase
     {
         $bag = Alert::fake();
 
-        Alert::raw('foo')->persistAs('bar');
-        Alert::raw('baz');
+        TestAlert::push()->persistAs('bar');
+        TestAlert::push();
 
         $bag->assertHasPersistent();
     }
@@ -145,7 +146,7 @@ class FakeTest extends TestCase
 
         $bag = Alert::fake();
 
-        Alert::raw('foo');
+        TestAlert::push();
 
         $bag->assertHasPersistent();
     }
@@ -154,7 +155,7 @@ class FakeTest extends TestCase
     {
         $bag = Alert::fake();
 
-        Alert::raw('baz');
+        TestAlert::push();
 
         $bag->assertHasNoPersistent();
     }
@@ -166,7 +167,7 @@ class FakeTest extends TestCase
 
         $bag = Alert::fake();
 
-        Alert::raw('foo')->persistAs('bar');
+        TestAlert::push()->persistAs('bar');
 
         $bag->assertHasNoPersistent();
     }

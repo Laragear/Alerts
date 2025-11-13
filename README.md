@@ -9,7 +9,9 @@
 Set multiple alerts from your backend, render them in the frontend with any HTML.
 
 ```php
-alert('This is awesome! 😍', 'success')
+use App\Alerts\FluxCallout;
+
+FluxCallout::push(['body' => 'This is awesome!']);
 ```
 
 ```html
@@ -22,7 +24,7 @@ alert('This is awesome! 😍', 'success')
 
 [![](.github/assets/support.png)](https://github.com/sponsors/DarkGhostHunter)
 
-Your support allows me to keep this package free, up-to-date and maintainable. Alternatively, you can **[spread the word!](http://twitter.com/share?text=I%20am%20using%20this%20cool%20PHP%20package&url=https://github.com%2FLaragear%2FAlerts&hashtags=PHP,Laravel)**
+Your support allows me to keep this package free, up-to-date and maintainable. Alternatively, you can **[spread the word!](http://x.com/share?text=I%20am%20using%20this%20cool%20PHP%20package&url=https://github.com%2FLaragear%2FAlerts&hashtags=PHP,Laravel)**
 
 ## Requirements
 
@@ -36,380 +38,300 @@ You can install the package via composer:
 composer require laragear/alerts
 ```
 
-If you don't have anything to start with in your frontend, you can use [Laravel Jetstream](https://jetstream.laravel.com/), or go the classic way and use [Bootstrap](https://getbootstrap.com), [Bulma.io](https://bulma.io/), [UI kit](https://getuikit.com/), [TailwindCSS](https://tailwindcss.com/) and [INK](http://ink.sapo.pt/), among many others. 
+## Creating Alerts
 
-## Usage
+Laragear Alerts allows pushing your own custom Alerts into any frontend, being Blade views, Livewire responses or Inertia applications.
 
-This package allows you to set a list of Alerts in your application and render them in the frontend in just a few minutes.
+This approach makes it compatible with any type of frontend you have: Flux UI, Vuetify, Flowbite, Nuxt UI, DaisyUI, TallStackUI, Wire UI, you name it!
 
-The default renderer uses [Bootstrap 5](https://getbootstrap.com) styles to transform each alert into [alerts](https://getbootstrap.com/docs/5.3/components/alerts/). If you're using [Tailwind CSS](https://tailwindcss.com), you can use the included Tailwind renderer by [changing the configuration](#renderer). Alternatively, you may [create your own renderer](#creating-a-custom-renderer) for your particular framework.
+First, create your own alert using the `alert:create` Artisan command with the name of your alert. For example, we will create one for [Flux UI Callouts](https://fluxui.dev/components/callout).
 
-### Quickstart
+```shell
+php artisan alert:create FluxCallout
+```
 
-To set an Alert in your frontend, you can use the `alert()` helper for shorter syntax, or the `Alert` Facade, whatever is your preference. A good place to use them is before sending a response to the browser, like in your HTTP Controllers.
+You will receive a class with some common defaults inside the `app\Views\Alerts` directory, and a view at the `resources/views/alerts` using the name of the alert in `slug-case`.
 
-If you're sending a redirect, the alerts will be magically flashed so the next request can show them. 
+```php
+namespace App\Views\Alerts;
+
+use Laragear\Alerts\Alert;
+
+class FluxCallout extends Alert
+{
+    /**
+     * @inheritDoc
+     */
+    public function toHtml()
+    {
+        return view('alerts.flux-callout', $this->all());
+    }
+}
+```
+
+```bladehtml
+<!-- resources/views/alerts/flux-callout.blade.php -->
+<div class="alert">
+    {{ $body }}
+</div>
+```
+
+Once your alert is created, you can start modifying to match your frontend.
+
+### Adding methods
+
+Alerts are simple classes, so you can add any method you see fit to make filling your Alert data more convenient.
+
+For example, you may create a static method to create a "successful" Alert, or automatically escape data that may include user-generated content with the [`e()`](https://laravel.com/docs/strings#method-e) helper.
+
+```php
+use Illuminate\Support\Str;
+
+/**
+ * Add actions to the Flux UI Callout.
+ * 
+ * @return $this
+ */
+public function actions(array $actions): static
+{
+    return $this->set('actions', $actions);
+}
+
+/**
+ * Create a successful Flux UI callout.
+ *  
+ * @return $this
+ */
+public static function success(string $heading, string $text = '', string $icon = ''): static
+{
+    return static::push(array_filter([
+        'heading' => $heading,
+        'text' => e($text)
+        'icon' => $icon ?: 'check'
+    ]));
+}
+```
+
+> [!IMPORTANT]
+> 
+> When adding objects, consider some [serialization caveats](#serialization).
+
+### Default values
+
+If you need to create Alerts with a set of default values, use the `getDefaults()` method to return an array of these values. These will be copied into the Alert attributes when it is instanced.
+
+```php
+/**
+ * Returns an array of default values.
+ */
+protected function getDefaults(): array
+{
+    return [
+        'color' => 'secondary',
+    ];
+}
+```
+
+## Pushing Alerts
+
+Alerts are _pushed_ to the frontend using the `push()` static method. After pushed, you can still modify the Alert, like adding a title, text, links or anything you want.
+
+The `push()` accepts an array of raw attributes you can add to your Alert in one go, but you're not limited to that. If you defined convenience methods, you can also use them.
 
 ```php
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Article;
+use App\Alerts\FluxCallout;
+use App\Models\Invoice;
 
-class ArticleController extends Controller
+class InvoiceController extends Controller
 {
     /**
-     * Update the Article 
-     * 
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Article $article
-     * @return \Illuminate\Http\Response
+     * Confirm the invoice payment.
      */
-    public function update(Request $request, Article $article)
+    public function confirm(Request $request, Invoice $invoice)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'body' => 'required|string'
+        $invoice->markAsConfirmed();
+        
+        FluxCallout::push([
+            'color' => 'green',
+            'heading' => 'Invoice paid',
+        ])->actions([
+            ['label' => 'Follow order', 'href' => route('order.show', $invoice->order)]
         ]);
-        
-        $article->fill($request)->save();
-        
-        alert('Your article has been updated!', 'success');
-        
-        return redirect()->action('ArticleController@edit', $article);
+
+        return to_route('invoice.show', $invoice);
     }
 }
 ```
 
-The `alert()` helper accepts the text *message* and the **types** of the alert. In the above example, we created a simple "success" alert.
-
-To render the alerts in the frontend, use the `<x-alerts-container />` Blade component which will take care of the magic, anywhere you want to put it.
-
-```blade
-<div class="header">
-    <h1>Welcome to my site</h1>
-    <x-alerts-container />
-</div>
-```
-
-If there is at least one Alert to be rendered, the above will be transformed into proper HTML:
-
-```html
-<div class="header">
-    <h1>Welcome to my site</h1>
-    <div class="alerts">
-        <div class="alert alert-success" role="alert">
-            Your article has been updated!
-        </div>
-    </div>
-</div>
-```
-
-Alternatively, you can use the `type($message)` syntax right from the `Alert` facade or the `alert()` helper.
+You may also use the `pushToBag()` method after it has been instanced to move the Alert to the bag, especially if you use the `make()` static method to create instance. This is great to use when combined with conditional methods, like `when()`.
 
 ```php
-use Laragear\Alerts\Facades\Alert;
-
-alert()->success('This was a triumph!');
-
-Alert::info("I'm making a note here: huge success.");
+FluxCallout::make([
+    'color' => 'green',
+    'heading' => 'Invoice paid',
+])->actions([
+    ['label' => 'Follow order', 'href' => route('order.show', $invoice->order)]
+])->when($invoice->isPaid())->pushToBag();
 ```
-
-```html
-<div class="alert alert-success" role="alert">
-    This was a triumph!
-</div>
-
-<div class="alert alert-info" role="alert">
-    I'm making a note here: huge success.
-</div>
-``` 
-
-### Message
-
-You can use the `type($message)` syntax, or go for the classic route and add the text inside the Alert using the `message()` method.
-
-```php
-use Laragear\Alerts\Facades\Alert;
-
-Alert::success('You are gonna love this! 😍');
-
-Alert::message('We will email you 📨 a copy!')->types('info');
-```
-
-```html
-<div class="alert alert-success" role="alert">
-    You are gonna love this! 😍
-</div>
-
-<div class="alert alert-info" role="alert">
-    We will email you 📨 a copy!
-</div>
-```
-
-> [!IMPORTANT]
-> 
-> By default, the `message()` method escapes the text. If you want to send a raw message, you should use [`raw()`](#raw-message).
-
-### Raw message
-
-Since the `message()` method escapes the text for safety, you can use the `raw()` method to output a string verbatim. This allows you to use HTML for personalized messages, like adding some _style_, links, or even scripts.
-
-```php
-use Laragear\Alerts\Facades\Alert;
-
-Alert::warning('This is <strong>FUBAR</strong>.');
-
-Alert::raw('But this is <strong>important</strong>.')->types('warning');
-```
-
-```html
-<div class="alert alert-warning" role="alert">
-    This is &lt;strong&gt;FUBAR&lt;/strong&gt;.
-</div>
-
-<div class="alert alert-warning" role="alert">
-    But this is <strong>important</strong>.
-</div>
-```
-
-**Warning: Don't use `raw()` to show user-generated content. YOU HAVE BEEN WARNED**.
-
-### Alert Type
-
-You can set an alert "type" by its name by just using it as a method name. The `types()` method is preferred if you need to set more than one.
-
-```php
-use Laragear\Alerts\Facades\Alert;
-
-Alert::primary('Your message was sent!');
-
-Alert::message('There is an unread message.')->types('info', 'cool');
-```
-
-```html
-<div class="alert alert-primary" role="alert">
-    Your message was sent!
-</div>
-
-<div class="alert alert-info cool" role="alert">
-    There is an unread message.
-</div>
-```
-
-The types are like _keywords_ that the underlying Renderer will use to transform the alert into proper HTML code.  
 
 > [!NOTE]
->
-> The default Bootstrap Renderer will set each unrecognized type as an additional CSS class.
+> 
+> The `make()` static method **doesn't add the alert to the bag**. It's just syntactic sugar for `new Alert()`.  
 
 ### Localization
 
-To gracefully localize messages on the fly, use the `trans()` method, which is a mirror of [the `__()` helper](https://laravel.com/docs/localization#retrieving-translation-strings).
+Localization for your Alert is done at class-level. In other words, when you set a given string, you may use Laravel's `trans()` or `transChoice()` methods _inside_ the class method to translate the string, instead of doing it outside, thus making it consistent across your application.
 
 ```php
-use Laragear\Alerts\Facades\Alert;
-
-Alert::trans('email.changed', ['email' => $email], 'es')->success();
+/**
+ * Add a localized title. 
+ */
+public function heading(...$arguments)
+{
+    return $this->set('heading', trans(...$arguments));
+}
 ```
-
-```html
-<div class="alert alert-success" role="alert">
-    ¡Tu email ha sido cambiado a "margarita@madrid.cl" con éxito!
-</div>
-```
-
-You can also use `transChoice()` with the same parameters of [`trans_choice()`](https://laravel.com/docs/localization#pluralization).
 
 ```php
-use Laragear\Alerts\Facades\Alert;
-
-Alert::transChoice('messages.apples', 1)->success();
-
-Alert::transChoice('messages.apples', 10)->success();
+FluxCallout::push()->heading('payment.success');
 ```
 
-```html
-<div class="alert alert-success" role="alert">
-    ¡Ahora tienes 1 manzana! 
-</div>
+### Conditions
 
-<div class="alert alert-success" role="alert">
-    ¡Ahora tienes 10 manzanas! 
-</div>
-```
-
-### Dismiss
-
-Most of the frontend frameworks have alerts or notifications that can be dismissible, but require adding more than a single class to allow for interactivity. 
-
-You can set an alert to be dismissible using `dismiss()`, signaling the Renderer to make the modification necessary to be dismissible.
-
-```php
-use Laragear\Alerts\Facades\Alert;
-
-Alert::success('You can disregard this')->dismiss();
-```
-
-If you want to change your mind, you can use `dismiss(false)`:
-
-```php
-use Laragear\Alerts\Facades\Alert;
-
-Alert::success('You can disregard this')->dismiss(false);
-```
-
-How the dismissible alert is transformed into code will depend on the renderer itself. The default Bootstrap renderer adds the proper CSS classes and a dismiss button automatically.
-
-```html
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-  You can disregard this
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-```
-
-### Conditional Alerts
-
-You can also push an Alert if a condition evaluates to true or false by using `when()` and `unless()`, respectively. Further method calls will be sent to the void.
+You can also push an Alert if a condition evaluates to true or false by using `pushWhen()` and `pushUnless()`, respectively. Further method calls will be sent to the void.
 
 ```php
 use Illuminate\Support\Facades\Auth;
-use Laragear\Alerts\Facades\Alert;
+use App\Alerts\FluxCallout;
 
-Alert::when(Auth::check())
-    ->success('You are authenticated');
+FluxCallout::pushWhen(Auth::check())
+    ->heading('You are authenticated');
 
-Alert::unless(Auth::user()->mailbox()->isNotEmpty())
-       ->warning('You have messages in your inbox');
+FluxCallout::pushUnless(Auth::user()->mailbox()->isNotEmpty())
+    ->heading('You have messages in your inbox');
 ```
 
-### Persistent Alerts
+### Persistence
 
-Alerts only last for the actual response being sent. On redirects, these are [flashed into the session](https://laravel.com/docs/10.x/session#flash-data) so these are available on the next request (the redirection target).
+Alerts only last for the actual response being sent. On redirects, these are [flashed into the session](https://laravel.com/docs/session#flash-data) so these are available on the next request (the redirection target).
 
-To make any alert persistent you can use the `persistAs()` method with a key to identify the alert.
+To make any alert persistent, you can use the `persistAs()` method with a key to identify the alert.
 
 ```php
-use Laragear\Alerts\Facades\Alert;
+use App\Alerts\FluxCallout;
 
-Alert::danger('Your disk size is almost full')->persistAs('disk.full');
+FluxCallout::push(['title' => 'Your disk size is almost full'])
+    ->color('red')
+    ->persistAs('disk.full');
 ```
 
 > [!NOTE]
 >
-> Setting a persistent alert replaces any previous set with the same key. 
+> Setting a persistent alert replaces any previous set with the same key.
 
 Once you're done, you can delete the persistent Alert using `abandon()` method directly from the helper using the key of the persisted Alert. For example, we can abandon the previous alert if the disk is no longer full.
 
 ```php
-use Laragear\Alerts\Facades\Alert;
+use App\Alerts\FluxCallout;
 
 if ($disk->notFull()) {
-    Alert::abandon('disk.full');
+    FluxCallout::abandon('disk.full');
 }
 ```
 
-### Links
+## Rendering
 
-Setting up links for an alert doesn't have to be cumbersome. You can easily replace a string between curly braces in your message for a link using `to()`, `route()`, `action()`, and `away()`.
-
-```php
-use Laragear\Alerts\Facades\Alert;
-
-Alert::success('Remember, you can follow your order in your {dashboard}.')
-    ->to('dashboard', '/dashboard/orders')
-```
-
-Links can also work over translated messages, as long these have a word in curly braces.
-
-```php
-use Laragear\Alerts\Facades\Alert;
-
-// You can see your package status in the {tracking}.
-Alert::trans('user.dashboard.tracking.order', ['order' => $order->tracking_number])
-    ->types('success')
-    ->route('tracking', 'orders.tracking', ['order' => 45])
-```
-
-If you have more than one link, you can chain multiple links to a message.
-
-```php
-use Laragear\Alerts\Facades\Alert;
-
-Alert::trans('Your {product} is contained in this {order}.')
-    ->types('success')
-    ->action('product', [\App\Http\Controllers\Product::class, 'show'], ['product' => 180])
-    ->to('order', '/dashboard/order/45')
-```
-
-> [!IMPORTANT]
->
-> Links strings are case-sensitive, and replaces all occurrences of the same string. You can [create your own Renderer](#creating-a-custom-renderer) if this is not desired. 
-
-### Tags
-
-Sometimes you may have more than one place in your site to place Alerts, like one for global alerts and other for small user alerts. Tags can work to filter which Alerts you want to render.
-
-You can set the tags of the Alert using `tag()`. 
-
-```php
-use Laragear\Alerts\Facades\Alert;
-
-Alert::warning('Maintenance is scheduled for tomorrow')
-    ->tag('user', 'admin')
-```
-
-Using the [Alerts directive](#quickstart), you can filter the Alerts to render by the tag names using the `:tags` slot.
-
-```blade
-<!-- Render the Alerts in the default list -->
-<x-alerts-container :tags="'default'" />
-
-<!-- Here we will render alerts for users and admins. -->
-<x-alerts-container :tags="['user', 'admin']" />
-```
-
-### Metadata
-
-Sometimes you will want to add metadata to the alert. For example, you may want to add a custom icon, or a piece of text that should be treated differently. For these cases, you may use the `metadata()` method to set a scalar value into the alert.
-
-```php
-use Laragear\Alerts\Facades\Alert;
-
-// You can see your package status in the {tracking}.
-Alert::message('Your disk is almost full!')
-    ->metadata('icon', 'i-heroicons-server');
-```
-
-When rendering the metadata in a Blade view, you may retrieve the metadata using `getMetadata()`. Using a key will return the value or a default, while using no arguments it will return the underlying _Fluent_ instance.
+To render alerts in the frontend, use the `<x-alerts-container />` Blade component which will take care of the magic, anywhere you want to put it.
 
 ```bladehtml
-<div class="alert alert-warning" role="alert">
-    <x-icon :icon="$alert->getMetadata('icon')" />
+<div class="header">
+    <h1>Welcome to my site</h1>
     
-    <p>{{ $alert->getMessages() }}</p>
+    <!-- Add the container for the alerts -->
+    <x-alerts-container />
 </div>
 ```
 
-When rendering the metadata as JSON, it will be part of the `metadata` key.
+The component cycles through each alert and calls `toHtml()` to render them in your view. You're free to alter the `toHtml()` method of your alert with custom data.
 
-```json
+```php
+public function toHtml()
 {
-    "alert": {
-        "message": "Email delivered",
-        "types": [
-            "success",
-            "important"
-        ],
-        "dismissible": false,
-        "metadata": []
+    return view('flux-callout', [
+        'heading' => $this->heading,
+        'text' => $this->text,
+        'actions' => $this->actions,
+    ]);
+}
+```
+
+The container view is set as `laragear::alerts.container`. You're free to change the container as you see fit for your application.
+
+### Filter by class
+
+When using the [Alerts directive](#rendering), all the alerts will be rendered in the order these were instanced.
+
+You can _filter_ the alerts to be rendered using the `filter` attribute of the directive. Only matching FQN names of the classes alerts will be rendered.
+
+```bladehtml
+<!-- Only show system-wide alerts -->
+<x-alerts-container filter="\App\Alerts\SystemAlert" />
+
+<!-- Show everything except global alerts and system-wide alerts -->
+<x-alerts-container filter="\App\Alerts\GlobalAlert,\App\Alerts\SystemAlert" />
+```
+
+## Alerts as Notifications
+
+If you're deep into Laravel Notifications, you can easily create notifications for your frontend, especially if these are broadcasted, using the Alert Channel.
+
+Use the `Laragear\Alerts\AlertChannel` class as a channel, and the `toAlert()` method in your notification with an Alert instance.
+
+```php
+use App\Alerts\FluxCallout;
+use App\Models\Invoice;
+use Laragear\Alerts\Alert;
+use Laragear\Alerts\AlertChannel;
+use Illuminate\Notifications\Notification;
+ 
+class InvoicePaid extends Notification
+{
+    /**
+     * Create a new Invoice Paid instance.
+     */
+    public function __construct(protected Invoice $invoice)
+    {
+        //
+    }
+
+    /**
+     * Get the notification channels.
+     */
+    public function via(object $notifiable): string
+    {
+        return AlertChannel::class;
+    }
+ 
+    /**
+     * Get the alert representation of the notification.
+     */
+    public function toAlert(object $notifiable): Alert
+    {
+        return FluxCallout::make()
+            ->title('InvoicePaid')
+            ->text('You will receive a copy of the transaction in your email')
+            ->actions(
+                ['label' => 'Follow order', 'href' => route('orders.show', $this->invoice->order)],
+                ['label' => 'See all orders', 'href' => route('orders.index')],
+            );
     }
 }
 ```
 
-> [!WARNING]
-> 
-> Always try to use metadata values as scalar values (arrays, strings, integers...) or castable to scalar values. This way you won't have problem on serialization/deserialization. 
+It's recommended to use `make()` instead of `push()` if you expect to test your notifications outside a request lifecycle. 
 
 ## Configuration
 
@@ -422,27 +344,11 @@ php artisan vendor:publish --provider="Laragear\Alerts\AlertsServiceProvider" --
 Let's examine the configuration array, which is quite simple:
 
 ```php
-<?php 
-
 return [
-    'renderer' => 'bootstrap',
     'session' => true,
     'key' => '_alerts',
-    'tags' => 'default',
 ];
 ```
-
-### Renderer
-
-```php
-return [
-    'renderer' => 'bootstrap',
-];
-```
-
-This picks the Renderer to use when transforming Alerts metadata into HTML.
-
-This package ships with [Bootstrap 5](https://getbootstrap.com) and [Tailwind CSS](https://tailwindcss.com/) renderers, but you can [create your own](#renderers) for other frontend frameworks like [Bulma.io](https://bulma.io/), [UI kit](https://getuikit.com/), [INK](http://ink.sapo.pt/), or even your own custom frontend framework.
 
 ### Session
 
@@ -452,9 +358,9 @@ return [
 ];
 ```
 
-When your application frontend is detached from the backend, like when using JavaScript or SPA, there is little to no benefit on storing the alerts into the session, especially is your alerts are meant to be ephemeral (like toasts). You will probably send them through your application JSON response [using the included middleware](#sending-json-alerts).
+When your application frontend is detached from the backend, like when using JavaScript or SPA, there is little to no benefit on storing the alerts into the session, especially when your alerts are meant to be ephemeral (like toasts). You will probably send them through your application JSON response [using the included middleware](#sending-json-alerts).
 
-By disabling this with `false`, your session may be leaner since that logic si bypassed. 
+By disabling this with `false`, your session may be leaner since that logic is bypassed. 
 
 ### Session Key
 
@@ -468,101 +374,27 @@ When alerts are flashed or persisted, these are stored in the Session by a given
 
 This key is also used when [sending JSON alerts](#sending-json-alerts).
 
-### Default tag list
+## Serialization
 
-```php
-return [
-    'tags' => ['user', 'admin'],
-];
-```
+Alerts implement the `__serialize()` and `__unserialize()` to only save its attributes. Other added properties will not be serialized.
 
-This holds the default tag list to inject to all Alerts when created. You can leave this alone if you're not using [tags](#tags).
+If you depend on custom serialization, like restoring object instances or add other data, you may override the serialization methods.
 
-## Renderers
+### JSON
 
-A Renderer takes a [collection](https://laravel.com/docs/10.x/collections) of Alerts and transforms each into an HTML string. This makes swapping a frontend framework easier, and allows greater flexibility when rendering HTML.
+Alerts can be serialized into an array and a JSON string automatically, using `toArray()` and `toJson()`, respectively. This means you can send an Alert as a JSON response. By default, it will expose all its attributes.
 
-### Creating a custom renderer
-
-You can create your own using the `Renderer` contract, and registering it into the `RendererManager` in your `AppServiceProvider`. You can use the `BootstrapRenderer` as a starting point to create your own.
-
-```php
-<?php
-
-use Laragear\Alerts\RendererManager;
-use App\Alerts\Renderers\TailwindRenderer;
-
-/**
- * Bootstrap any application services.
- *
- * @return void
- */
-public function boot(RendererManager $alert)
+```json
 {
-    $alert->extend('tailwind', function ($app) {
-        return new TailwindRenderer($app->make('blade.compiler');
-    });
+    "heading": "Invoice paid",
+    "text": "Follow your order in your dashboard.",
+    "color": "green",
 }
 ```
 
-Then, in your config file, set the renderer to the one you have registered.
-
-```php
-// config/alerts.php
-
-return [
-    'renderer' => 'tailwind'
-    
-    // ...
-];
-```
-
-When you issue an alert, the alert will be rendered using your own custom renderer.
-
-```php
-use Laragear\Alerts\Facades\Alert;
-
-Alert::default('Popping colors!');
-```
-
-```html
-<div class="bg-slate-100 rounded-xl p-8 dark:bg-slate-800">
-    Popping colors!
-</div> 
-```
-
-### Alerts Container HTML
-
-When the Renderer receives Alerts to render, it will call a "container" view which will render all the Alerts by using a loop.
-
-For example, the included `BootstrapRenderer` calls the `laralerts::bootstrap.container`.
-
-```html
-@if($alerts->isNotEmpty())
-    <div class="alerts">
-        @each('alerts::bootstrap.alert', $alerts, 'alert')
-    </div>
-@endif
-```
-
-You may be using another frontend framework different from Bootstrap 5, or you may want to change the HTML to better suit your application design. In any case, you can override the View files in `views/vendor/alerts`:
-
-* `container.blade.php`: The HTML that contains all the Alerts.
-* `alert.blade.php`: The HTML for a single Alert.
-
-The variables the `alert.blade.php` view receives are set from by Renderer. For the case of the included Bootstrap renderer, these are:
-
-* `$alert->message`: The message to show inside the Alert.
-* `$alert->classes`: The CSS classes to incorporate into the Alert.
-* `$alert->dismissible`: A boolean that sets the alert as dismissible or not.
-
-As you're suspecting, you can publish the views and override them to suit your needs.
-
-```shell
-php artisan vendor:publish --provider="Laragear\Alerts\AlertsServiceProvider" --tag="views"
-```
-
-## JSON Alerts
+> [!NOTE]
+>
+> If you want to alter how these are serialized, alter the `toArray()` or `toJson()` methods.
 
 ### Receiving JSON Alerts
 
@@ -570,37 +402,37 @@ Sometimes your application may receive a JSON Alert from an external service usi
 
 ```json
 {
-    "alert": {
-        "message": "Email delivered",
-        "types": [
-            "success",
-            "important"
-        ],
-        "dismissible": false,
-        "metadata": []
-    }
+    "data" : {
+        // ...
+    },
+    "alerts": [
+        {
+            "heading": "Invoice paid",
+            "text": "Follow your order in your dashboard.",
+            "color": "green",
+        }
+    ]
 }
 ```
 
 ```php
-use Laragear\Alerts\Facades\Alert;
+use Illuminate\Http\Request;
+use App\Alerts\FluxCallout;
 
-Alert::fromJson($json);
+public function fromServer(Request $request)
+{
+    // Add the alerts from the response
+    $request->collect('alerts')->map(FluxCallout::make(...))
+}
 ```
-
-This will work as long the JSON **has the `message` key** with the text to include inside the Alert. Additionally, you can add the `types` and `dismiss` keys to add an Alert, with the possibility of override them afterward.
-
-> [!WARNING]
->
-> The message from JSON is set **raw**.
 
 ### Sending JSON Alerts
 
-This library has a convenient way to add Alerts into your JSON Responses. This can be very useful to add your alerts to each response being sent to the browser, like combining this package with [Laravel Jetstream](https://jetstream.laravel.com/).
+This library has a convenient way to add Alerts into your JSON Responses. This can be invaluable to add your alerts to each response being sent to the browser, like combining this package with [Laravel Jetstream](https://jetstream.laravel.com/).
 
-Just simply [add the `alerts.json` middleware](https://laravel.com/docs/10.x/middleware#registering-middleware) into your `api` routes or, if you're using [Laravel Jetstream](https://jetstream.laravel.com/) or similar, as a [global middleware](https://laravel.com/docs/10.x/middleware#global-middleware).
+[Add the `alerts.json` middleware](https://laravel.com/docs/middleware#registering-middleware) into your `api` routes or, if you're using [Laravel Jetstream](https://jetstream.laravel.com/) or similar, as a [global middleware](https://laravel.com/docs/middleware#global-middleware).
 
-When you return a `JsonResponse` to the browser, the middleware will append the alert as JSON using the same [session key](#session-key) defined in the configuration, which is `_alerts` by default. It also accepts the `key` parameter to use as an alternative, compatible with *dot notation*.
+When you return a `JsonResponse` to the browser, the middleware will append the alert as JSON using the same [session key](#session-key) defined in the configuration, which is `_alerts` by default. It also accepts the `key` parameter to use as an alternative, compatible with `dot.notation`.
 
 ```php
 use Illuminate\Support\Facades\Route;
@@ -628,10 +460,9 @@ When you receive a JSON Response, you will see the alerts appended to whichever 
         "id": 648,
         "alerts": [
             {
-                "message": "The user has been created!",
-                "types" : ["success", "important"],
-                "dismiss": true,
-                "metadata": []
+                "heading": "Invoice paid",
+                "text": "Follow your order in your dashboard.",
+                "color": "green",
             }
         ]
     }
@@ -644,7 +475,7 @@ When you receive a JSON Response, you will see the alerts appended to whichever 
 
 #### Sending Alerts to Laravel Inertia
 
-If you're using Laravel Inertia, you may want to use the `alerts.inertia` middleware instead of the `alerts.json`. The middleware will automatically add the alerts to Inertia requests/responses automatically.
+If you're using Laravel Inertia, you may want to use the `alerts.inertia` middleware instead of the `alerts.json`. The middleware will add the alerts **only** to Inertia requests/responses automatically.
 
 ```php
 use Illuminate\Support\Facades\Route;
@@ -680,10 +511,10 @@ const alerts = page.props._alerts
 
 ## Testing
 
-To test if alerts were generated, you can use `Alert::fake()`, which works like any other faked services. It returns a fake Alert Bag that holds a copy of all alerts generated, which exposes some convenient assertion methods.
+To test if alerts were generated, you can use `fake()` from the `Alert` facade, which works like any other faked services. It returns a fake Alert Bag that holds a copy of all alerts generated, which exposes some convenient assertion methods.
 
 ```php
-use \Laragear\Alerts\Facades\Alert;
+use Laragear\Alerts\Facades\Alert;
 
 public function test_alert_sent()
 {
@@ -709,57 +540,48 @@ The following assertions are available:
 
 ### Asserting specific alerts
 
-The fake Alert bag allows building conditions for the existence (or nonexistence) of alerts with specific properties, by using `assertAlert()`. 
-
-Once you build your conditions, you can use `exists()` to check if any alert matches, or `missing()` to check if no alert should match.
+The fake Alert bag allows building conditions for the existence (or nonexistence) of alerts with specific properties, by using `assertAlert()`, followed by the `with()` method to build expectations. Once you build your expectations, you can use `exists()` to check if any alert matches, or `missing()` to check if no alert should match.
 
 ```php
-use \Laragear\Alerts\Facades\Alert;
+use Laragear\Alerts\Facades\Alert;
 
-$alert = Alert::fake();
+$bag = Alert::fake();
 
-$alert->assertAlert()->withMessage('Hello world!')->exists();
+$bag->assertAlert()->with('heading', 'Hello world!')->exists();
 
-$alert->assertAlert()->withTypes('danger')->dismissible()->missing();
+$bag->assertAlert()->with('color', 'green')->missing();
+
+$bag->assertAlert()->with(function (Alert $alert) {
+    return 'Hello world!' === $alert->heading;
+});
 ```
 
-Alternatively, you can use `count()` if you expect a specific number of alerts to match the given conditions, or `unique()` for matching only one alert.
+```php
+use Laragear\Alerts\Facades\Alert;
+
+$bag = Alert::fake();
+
+$bag->assertAlert()->with('title', 'Hello world!')->exists();
+
+$bag->assertAlert()->with('type', 'success')->missing();
+```
+
+> [!NOTE]
+>
+> Alternatively, you can use `count()` if you expect a specific number of alerts to match the given conditions, or `unique()` for matching only one alert.
+
+Finally, to test if an alert is persisted or not, use the `persisted()` and `notPersisted()`, respectively.
 
 ```php
-use \Laragear\Alerts\Facades\Alert;
+use Laragear\Alerts\Facades\Alert;
 
 $bag = Alert::fake();
 
 $bag->assertAlert()->persisted()->count(2);
-
-$bag->assertAlert()->notDismissible()->withTag('toast')->unique();
 ```
-
-The following conditions are available:
-
-| Method              | Description                                       |
-|---------------------|---------------------------------------------------|
-| `withRaw()`         | Find alerts with the given raw message.           |
-| `withMessage()`     | Find alerts with the given message.               |
-| `withTrans()`       | Find alerts with the translated message.          |
-| `withTransChoice()` | Find alerts with the translated (choice) message. |
-| `withAway()`        | Find alerts with a link away.                     |
-| `withTo()`          | Find alerts with a link to a path.                |
-| `withRoute()`       | Find alerts with a link to a route.               |
-| `withAction()`      | Find alerts with a link to a controller action.   |
-| `withTypes()`       | Find alerts with exactly the given types.         |
-| `persisted()`       | Find alerts persisted.                            |
-| `notPersisted()`    | Find alerts not persisted.                        |
-| `persistedAs()`     | Find alerts persisted with the issued keys.       |
-| `dismissible()`     | Find alerts dismissible.                          |
-| `notDismissible()`  | Find alerts not dismissible.                      |
-| `withTag()`         | Find alerts with all the given tags.              |
-| `withAnyTag()`      | Find alerts with any of the given tags.           |
 
 ## Laravel Octane compatibility
 
-- The Renderer-related classes are registered as singletons.
-- It's safe to extend the `RendererManager` at boot time.
 - The Bag is registered as singleton. **You shouldn't resolve it at boot time.**
 - The Bag contains a stale version of the app config. **You shouldn't change the config.**
 - There are no static properties written during a request.
@@ -768,10 +590,10 @@ There should be no problems using this package with Laravel Octane if you use th
 
 ## Security
 
-If you discover any security related issues, please [use the online form](https://github.com/Laragear/Alerts/security).
+If you discover any security-related issues, please [use the online form](https://github.com/Laragear/Alerts/security).
 
 # License
 
-This specific package version is licensed under the terms of the [MIT License](LICENSE.md), at time of publishing.
+This specific package version is licensed under the terms of the [MIT License](LICENSE.md), at the time of publishing.
 
-[Laravel](https://laravel.com) is a Trademark of [Taylor Otwell](https://github.com/TaylorOtwell/). Copyright © 2011-2025 Laravel LLC.
+[Laravel](https://laravel.com) is a Trademark of [Taylor Otwell](https://github.com/TaylorOtwell/). Copyright © 2011–2025 Laravel LLC.
