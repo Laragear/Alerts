@@ -3,6 +3,7 @@
 namespace Tests\Http\Middleware;
 
 use Illuminate\Foundation\Testing\Concerns\InteractsWithViews;
+use Tests\Fixtures\TestAlert;
 use Tests\TestCase;
 
 class AppendAlertsToJsonResponseTest extends TestCase
@@ -14,7 +15,8 @@ class AppendAlertsToJsonResponseTest extends TestCase
         $this->app->make('router')->get(
             'test',
             function () {
-                alert('foo', 'bar', 'quz');
+                TestAlert::push(['text' => 'example']);
+
 
                 return response()->json(['bar' => 'baz']);
             }
@@ -24,12 +26,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
             [
                 'bar' => 'baz',
                 '_alerts' => [
-                    [
-                        'dismissible' => false,
-                        'message' => 'foo',
-                        'types' => ['bar', 'quz'],
-                        'metadata' => [],
-                    ],
+                    ['text' => 'example'],
                 ],
             ]
         );
@@ -40,7 +37,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
         $this->app->make('router')->get(
             'test',
             function () {
-                alert('foo');
+                TestAlert::push(['text' => 'example']);
 
                 return response()->json(
                     [
@@ -55,12 +52,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
             [
                 'bar' => 'baz',
                 '_alerts' => [
-                    [
-                        'message' => 'foo',
-                        'types' => [],
-                        'dismissible' => false,
-                        'metadata' => [],
-                    ],
+                    ['text' => 'example'],
                 ],
             ]
         );
@@ -71,7 +63,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
         $this->app->make('router')->get(
             'test',
             function () {
-                alert('foo');
+                TestAlert::push(['text' => 'example']);
 
                 return response(json_encode(['bar' => 'baz']));
             }
@@ -86,7 +78,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
         $this->app->make('router')->get(
             'test',
             function () {
-                alert('foo');
+                TestAlert::push(['text' => 'example']);
 
                 return response()->json(['bar' => 'baz'], 400);
             }
@@ -101,7 +93,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
         $this->app->make('router')->get(
             'test',
             function () {
-                alert('foo');
+                TestAlert::push(['text' => 'example']);
 
                 return response()->json(['bar' => 'baz'], 500);
             }
@@ -116,7 +108,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
         $this->app->make('router')->get(
             'test',
             function () {
-                alert('foo', 'bar', 'quz');
+                TestAlert::push(['text' => 'example']);
 
                 return response()->json(['bar' => 'baz']);
             }
@@ -129,12 +121,7 @@ class AppendAlertsToJsonResponseTest extends TestCase
                     'foo' => [
                         'bar' => [
                             'quz' => [
-                                [
-                                    'dismissible' => false,
-                                    'message' => 'foo',
-                                    'types' => ['bar', 'quz'],
-                                    'metadata' => [],
-                                ],
+                                ['text' => 'example'],
                             ],
                         ],
                     ],
@@ -147,19 +134,15 @@ class AppendAlertsToJsonResponseTest extends TestCase
         $this->app->make('router')->get(
             'test',
             function () {
-                alert('foo', 'bar', 'quz');
+                TestAlert::push(['text' => 'example']);
+
 
                 return response()->json(['bar' => 'baz']);
             }
         )->middleware('alerts.json:bar');
 
         $this->get('test')->assertExactJson(['bar' => [
-            [
-                'dismissible' => false,
-                'message' => 'foo',
-                'types' => ['bar', 'quz'],
-                'metadata' => [],
-            ],
+            ['text' => 'example'],
         ]]);
     }
 }

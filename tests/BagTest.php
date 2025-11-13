@@ -5,6 +5,7 @@
 namespace Tests;
 
 use Laragear\Alerts\Bag;
+use Tests\Fixtures\TestAlert;
 
 class BagTest extends TestCase
 {
@@ -19,14 +20,14 @@ class BagTest extends TestCase
 
     public function test_adds_new_alert_to_bag(): void
     {
-        $alert = $this->bag->new();
+        $alert = TestAlert::push();
 
         static::assertSame($alert, $this->bag->collect()[0]);
     }
 
     public function test_abandons_persisted_alert(): void
     {
-        $this->bag->new()->persistAs('foo');
+        TestAlert::push()->persistAs('foo');
 
         static::assertCount(1, $this->bag->collect());
 
@@ -39,8 +40,8 @@ class BagTest extends TestCase
 
     public function test_flushes_all_alerts(): void
     {
-        $this->bag->new()->persistAs('foo');
-        $this->bag->new();
+        TestAlert::push()->persistAs('foo');
+        TestAlert::push();
 
         static::assertCount(2, $this->bag->collect());
 
@@ -51,65 +52,10 @@ class BagTest extends TestCase
 
     public function test_check_has_persistent(): void
     {
-        $this->bag->new()->persistAs('foo');
-        $this->bag->new();
+        TestAlert::push()->persistAs('foo');
+        TestAlert::push();
 
         static::assertTrue($this->bag->hasPersistent('foo'));
         static::assertFalse($this->bag->hasPersistent('bar'));
-    }
-
-    public function test_when_true_creates_alert(): void
-    {
-        $this->bag->when(true)->message('foo')->types('bar');
-
-        static::assertCount(1, $this->bag->collect());
-    }
-
-    public function test_when_false_creates_empty_alert(): void
-    {
-        $this->bag->when(false)->message('foo')->types('bar');
-
-        static::assertEmpty($this->bag->collect());
-    }
-
-    public function test_unless_false_creates_alert(): void
-    {
-        $this->bag->unless(false)->message('foo')->types('bar');
-
-        static::assertCount(1, $this->bag->collect());
-    }
-
-    public function test_unless_true_creates_empty_alert(): void
-    {
-        $this->bag->unless(true)->message('foo')->types('bar');
-
-        static::assertEmpty($this->bag->collect());
-    }
-
-    public function test_adds_json_alert(): void
-    {
-        $alert = $this->bag->fromJson(
-            json_encode(
-                [
-                    'message' => 'foo',
-                    'types' => ['bar', 'baz'],
-                    'dismissible' => true,
-                ]
-            )
-        );
-
-        static::assertSame('foo', $alert->getMessage());
-        static::assertSame(['bar', 'baz'], $alert->getTypes());
-        static::assertTrue($alert->isDismissible());
-
-        static::assertCount(1, $this->bag->collect());
-    }
-
-    public function test_passes_method_to_alert_dynamic_type_set(): void
-    {
-        $alert = $this->bag->nonexistent('foo');
-
-        static::assertSame('foo', $alert->getMessage());
-        static::assertSame(['nonexistent'], $alert->getTypes());
     }
 }

@@ -1,0 +1,27 @@
+<?php
+
+namespace {{ namespace }};
+
+use Laragear\Alerts\Alert;
+
+class {{ class }} extends Alert
+{
+    /**
+     * Add a body of escaped text to the alert.
+     *
+     * @param  $message  string
+     * @return $this
+     */
+    public function text(string $message): static
+    {
+        return $this->set('text', e($message));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function toHtml()
+    {
+        {{ view }};
+    }
+}

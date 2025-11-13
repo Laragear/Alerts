@@ -31,8 +31,7 @@
         "illuminate/support": "11.*|12.*",
         "illuminate/collections": "11.*|12.*",
         "illuminate/session": "11.*|12.*",
-        "illuminate/view": "11.*|12.*",
-        "illuminate/routing": "11.*|12.*"
+        "illuminate/view": "11.*|12.*"
     },
     "require-dev": {
         "orchestra/testbench": "9.*|10.*",
@@ -41,10 +40,7 @@
     "autoload": {
         "psr-4": {
             "Laragear\\Alerts\\": "src"
-        },
-        "files": [
-            "src/helpers.php"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {

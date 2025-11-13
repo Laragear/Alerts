@@ -3,13 +3,9 @@
 namespace Tests\Blade\Components;
 
 use Illuminate\Foundation\Testing\Concerns\InteractsWithViews;
-use Illuminate\Support\Collection;
-use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
-use Laragear\Alerts\Contracts\Renderer;
+use Tests\Fixtures\TestAlertWithView;
 use Tests\TestCase;
-
-use function alert;
 
 class ContainerTest extends TestCase
 {
@@ -37,22 +33,13 @@ EOT
 
     public function test_renders_alerts(): void
     {
-        $render = $this->mock(Renderer::class);
-
-        $render->shouldReceive('render')
-            ->once()
-            ->withArgs(function (Collection $alerts) {
-                static::assertCount(1, $alerts);
-                static::assertInstanceOf(Alert::class, $alerts->get(0));
-
-                return true;
-            })
-            ->andReturn('<foo>bar</foo>');
-
-        alert('foo', 'bar');
+        $this->bag->add(new TestAlertWithView(['foo' => 'bar']));
 
         static::assertEquals(<<<'EOT'
-<div class="container"><foo>bar</foo></div>
+<div class="container"><div class="alerts">
+            itrenders
+    </div>
+</div>
 EOT
             ,
             (string) $this->blade('<div class="container"><x-alerts-container /></div>')

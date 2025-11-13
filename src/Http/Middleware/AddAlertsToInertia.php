@@ -3,11 +3,11 @@
 namespace Laragear\Alerts\Http\Middleware;
 
 use Closure;
-use Illuminate\Contracts\Config\Repository as ConfigContract;
 use Illuminate\Http\Request;
 use Inertia\ResponseFactory as Inertia;
 use Laragear\Alerts\Bag;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use function config;
 
 class AddAlertsToInertia
 {
@@ -21,7 +21,7 @@ class AddAlertsToInertia
     /**
      * Create a new Add Alerts To Inertia instance.
      */
-    public function __construct(protected Inertia $inertia, protected ConfigContract $config, protected Bag $alerts)
+    public function __construct(protected Inertia $inertia, protected Bag $alerts)
     {
         //
     }
@@ -31,7 +31,7 @@ class AddAlertsToInertia
      */
     public function handle(Request $request, Closure $next, ?string $key = null): SymfonyResponse
     {
-        $this->inertia->share($key ?? $this->config->get('alerts.key'), $this->alerts->collect());
+        $this->inertia->share($key ?? config('alerts.key'), $this->alerts->collect());
 
         return $next($request);
     }
