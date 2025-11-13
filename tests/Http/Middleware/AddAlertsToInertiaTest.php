@@ -6,9 +6,8 @@ use Illuminate\Foundation\Testing\Concerns\InteractsWithViews;
 use Inertia\Inertia;
 use Inertia\Middleware;
 use Inertia\Testing\AssertableInertia;
+use Tests\Fixtures\TestAlert;
 use Tests\TestCase;
-
-use function alert;
 use function response;
 
 class AddAlertsToInertiaTest extends TestCase
@@ -34,7 +33,7 @@ class AddAlertsToInertiaTest extends TestCase
         $this->app->make('router')->get(
             'test',
             function () {
-                alert('foo', 'bar', 'quz');
+                TestAlert::push(['foo' => 'bar']);
 
                 return response()->json(['bar' => 'baz']);
             },
@@ -49,7 +48,7 @@ class AddAlertsToInertiaTest extends TestCase
         $this->app->make('router')->get(
             'test',
             function () {
-                alert('foo', 'bar', 'quz');
+                TestAlert::push(['foo' => 'bar']);
 
                 return Inertia::render('test', [
                     'foo' => 'bar',
@@ -62,17 +61,12 @@ class AddAlertsToInertiaTest extends TestCase
                 $page->component('test')
                     ->where('foo', 'bar')
                     ->where('_alerts', [
-                        [
-                            'dismissible' => false,
-                            'message' => 'foo',
-                            'types' => ['bar', 'quz'],
-                            'metadata' => [],
-                        ],
+                        ['foo' => 'bar'],
                     ]);
             });
     }
 
-    public function test_adds_alerts_when_when_inertia_response_and_is_empty(): void
+    public function test_adds_alerts_key_when_inertia_response_and_is_empty(): void
     {
         $this->app->make('router')->get(
             'test',
@@ -96,7 +90,7 @@ class AddAlertsToInertiaTest extends TestCase
         $router = $this->app->make('router');
 
         $router->get('redirect', function () {
-            alert('test-alert');
+            TestAlert::push(['foo' => 'bar']);
 
             return redirect()->to('/test');
         })->middleware(['web', Middleware::class, 'alerts.inertia']);
@@ -110,7 +104,7 @@ class AddAlertsToInertiaTest extends TestCase
                 $page->component('test')
                     ->where('foo', 'bar')
                     ->where('_alerts', [
-                        ['dismissible' => false, 'message' => 'test-alert', 'metadata' => [], 'types' => []],
+                        ['foo' => 'bar'],
                     ]);
             });
     }

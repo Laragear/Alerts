@@ -5,9 +5,9 @@ namespace Tests\Http\Middleware;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithViews;
 use Illuminate\Support\Facades\Route;
 use Laragear\Alerts\Http\Middleware\StoreAlertsInSession;
+use Tests\Fixtures\TestAlertWithView;
 use Tests\TestCase;
 
-use function alert;
 use function redirect;
 
 class StoreAlertsInSessionTest extends TestCase
@@ -17,7 +17,7 @@ class StoreAlertsInSessionTest extends TestCase
     protected function defineRoutes($router)
     {
         $router->get('no-session', function () {
-            alert()->message('foo')->persistAs('foo.bar');
+            TestAlertWithView::push(['foo' => 'bar'])->persistAs('foo.bar');
 
             return 'ok';
         })->middleware(StoreAlertsInSession::class);
@@ -26,26 +26,26 @@ class StoreAlertsInSessionTest extends TestCase
     protected function defineWebRoutes($router)
     {
         $router->get('foo', function () {
-            alert('foo');
+            TestAlertWithView::push(['foo' => 'bar']);
 
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
 
         $router->get('bar', function () {
-            alert('bar');
+            TestAlertWithView::push(['foo' => 'bar']);
 
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
 
         $router->get('empty', function () {
-            alert()->message('');
+            TestAlertWithView::push();
 
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
 
         $router->get('persist', function () {
-            alert()->message('foo');
-            alert()->message('foo')->persistAs('foo.bar');
+            TestAlertWithView::push(['foo' => 'bar']);
+            TestAlertWithView::push(['baz' => 'quz'])->persistAs('foo.bar');
 
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
@@ -55,14 +55,14 @@ class StoreAlertsInSessionTest extends TestCase
         })->middleware('web');
 
         $router->get('redirect', function () {
-            alert()->message('redirected');
+            TestAlertWithView::push(['text' => 'redirected']);
 
             return redirect()->to('no-alert');
         })->middleware('web');
 
         $router->get('redirect-with-both', function () {
-            alert()->message('redirected');
-            alert()->message('redirect persisted')->persistAs('foo.bar');
+            TestAlertWithView::push(['text' => 'redirected']);
+            TestAlertWithView::push(['text' => 'redirected persisted'])->persistAs('foo.bar');
 
             return redirect()->to('no-alert');
         })->middleware('web');
@@ -90,9 +90,7 @@ class StoreAlertsInSessionTest extends TestCase
         $response = $this->get('empty')->assertSessionMissing('_alerts');
 
         static::assertEquals('<div class="container"><div class="alerts">
-        <div class="alert" role="alert">
-'.'    '.'
-    </div>
+            itrenders
     </div>
 </div>',
             $response->getContent()
@@ -106,9 +104,7 @@ class StoreAlertsInSessionTest extends TestCase
         static::assertEquals(
             <<<'VIEW'
 <div class="container"><div class="alerts">
-        <div class="alert" role="alert">
-    foo
-    </div>
+            itrenders
     </div>
 </div>
 VIEW
@@ -134,14 +130,12 @@ VIEW
 
     public function test_alert_renders_through_redirect(): void
     {
-        $response = $this->followingRedirects()->get('redirect')->assertSessionMissing('_alerts');
+        $response = $this->followingRedirects()->get('redirect')->assertSessionMissing('_alerts.alerts');
 
         static::assertEquals(
             <<<'VIEW'
 <div class="container"><div class="alerts">
-        <div class="alert" role="alert">
-    redirected
-    </div>
+            itrenders
     </div>
 </div>
 VIEW
@@ -149,7 +143,7 @@ VIEW
             $response->getContent()
         );
 
-        $response = $this->get('no-alert')->assertSessionMissing('_alerts');
+        $response = $this->get('no-alert')->assertSessionMissing('_alerts.alerts');
 
         static::assertEquals(
             <<<'VIEW'
@@ -161,17 +155,13 @@ VIEW,
 
     public function test_alert_persistent_and_non_persistent_renders_through_redirect(): void
     {
-        $response = $this->followingRedirects()->get('redirect-with-both')->assertSessionHas('_alerts');
+        $response = $this->followingRedirects()->get('redirect-with-both')->assertSessionMissing('_alerts.alerts');
 
         static::assertEquals(
             <<<'VIEW'
 <div class="container"><div class="alerts">
-        <div class="alert" role="alert">
-    redirect persisted
-    </div>
-<div class="alert" role="alert">
-    redirected
-    </div>
+            itrenders
+            itrenders
     </div>
 </div>
 VIEW
@@ -179,14 +169,12 @@ VIEW
             $response->getContent()
         );
 
-        $response = $this->get('no-alert')->assertSessionHas('_alerts');
+        $response = $this->get('no-alert')->assertSessionMissing('_alerts.alerts');
 
         static::assertEquals(
             <<<'VIEW'
 <div class="container"><div class="alerts">
-        <div class="alert" role="alert">
-    redirect persisted
-    </div>
+            itrenders
     </div>
 </div>
 VIEW
@@ -197,17 +185,13 @@ VIEW
 
     public function test_persists_alerts_through_session(): void
     {
-        $response = $this->get('persist')->assertSessionHas('_alerts');
+        $response = $this->get('persist')->assertSessionMissing('_alerts.alerts');
 
         static::assertEquals(
             <<<'VIEW'
 <div class="container"><div class="alerts">
-        <div class="alert" role="alert">
-    foo
-    </div>
-<div class="alert" role="alert">
-    foo
-    </div>
+            itrenders
+            itrenders
     </div>
 </div>
 VIEW
@@ -215,14 +199,12 @@ VIEW
             $response->getContent()
         );
 
-        $response = $this->get('no-alert')->assertSessionHas('_alerts');
+        $response = $this->get('no-alert')->assertSessionMissing('_alerts.alerts');
 
         static::assertEquals(
             <<<'VIEW'
 <div class="container"><div class="alerts">
-        <div class="alert" role="alert">
-    foo
-    </div>
+            itrenders
     </div>
 </div>
 VIEW
@@ -234,8 +216,11 @@ VIEW
     public function test_same_persisted_key_replaces_previous_alert(): void
     {
         Route::get('persist')->uses(function () {
-            alert()->message('foo')->types('success')->persistAs('foo.bar');
-            alert()->message('bar')->persistAs('foo.bar');
+            $first = TestAlertWithView::push()->persistAs('foo.bar');
+            $first->callback = fn() => 'foo';
+
+            $last = TestAlertWithView::push(['baz' => 'quz'])->persistAs('foo.bar');
+            $last->callback = fn() => 'bar';
 
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
@@ -243,9 +228,7 @@ VIEW
         static::assertEquals(
             <<<'VIEW'
 <div class="container"><div class="alerts">
-        <div class="alert" role="alert">
-    bar
-    </div>
+            bar
     </div>
 </div>
 VIEW
@@ -257,13 +240,15 @@ VIEW
     public function test_next_request_replaces_persistent_alert(): void
     {
         Route::get('first')->uses(function () {
-            alert()->message('foo')->types('success')->persistAs('foo.bar');
+            $first = TestAlertWithView::push()->persistAs('foo.bar');
+            $first->callback = fn() => 'foo';
 
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
 
         Route::get('second')->uses(function () {
-            alert()->message('bar')->persistAs('foo.bar');
+            $first = TestAlertWithView::push()->persistAs('foo.bar');
+            $first->callback = fn() => 'bar';
 
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
@@ -273,9 +258,7 @@ VIEW
         static::assertSame(
             <<<'VIEW'
 <div class="container"><div class="alerts">
-        <div class="alert" role="alert">
-    bar
-    </div>
+            bar
     </div>
 </div>
 VIEW,
@@ -286,13 +269,15 @@ VIEW,
     public function test_next_redirect_request_replaces_persistent_alert(): void
     {
         Route::get('first')->uses(function () {
-            alert()->message('foo')->types('success')->persistAs('foo.bar');
+            $first = TestAlertWithView::push()->persistAs('foo.bar');
+            $first->callback = fn() => 'foo';
 
             return redirect('/second');
         })->middleware('web');
 
         Route::get('second')->uses(function () {
-            alert()->message('bar')->persistAs('foo.bar');
+            $first = TestAlertWithView::push()->persistAs('foo.bar');
+            $first->callback = fn() => 'bar';
 
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
@@ -300,9 +285,7 @@ VIEW,
         static::assertSame(
             <<<'VIEW'
 <div class="container"><div class="alerts">
-        <div class="alert" role="alert">
-    bar
-    </div>
+            bar
     </div>
 </div>
 VIEW,

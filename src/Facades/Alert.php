@@ -2,7 +2,6 @@
 
 namespace Laragear\Alerts\Facades;
 
-use Closure;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Facade;
@@ -10,25 +9,14 @@ use Laragear\Alerts\Bag;
 use Laragear\Alerts\Testing\Fakes\BagFake;
 
 /**
+ * @method static array<string, int> getPersisted()
+ * @method static static add(\Laragear\Alerts\Alert|iterable<\Laragear\Alerts\Alert> $alerts)
  * @method static \Illuminate\Support\Collection<int, \Laragear\Alerts\Alert> collect()
- * @method static \Laragear\Alerts\Alert persistAs(string $key)
+ * @method static static markPersisted(string $key, int $index)
  * @method static bool abandon(string $key)
  * @method static bool hasPersistent(string $key)
  * @method static void flush()
- * @method static \Laragear\Alerts\Alert message(string $message)
- * @method static \Laragear\Alerts\Alert raw(string $message)
- * @method static \Laragear\Alerts\Alert trans(string $key, array $replace = [], string $locale = null)
- * @method static \Laragear\Alerts\Alert transChoice(string $key, \Countable|int|array $number, array $replace = [], string $locale = null)
- * @method static \Laragear\Alerts\Alert types(string ...$types)
- * @method static \Laragear\Alerts\Alert dismiss(bool $dismissible = true)
- * @method static \Laragear\Alerts\Alert when(Closure|bool $condition)
- * @method static \Laragear\Alerts\Alert unless(Closure|bool $condition)
- * @method static \Laragear\Alerts\Alert away(string $replace, string $url, bool $blank = true)
- * @method static \Laragear\Alerts\Alert to(string $replace, string $url, bool $blank = false)
- * @method static \Laragear\Alerts\Alert route(string $replace, string $name, array $parameters = [], bool $blank = false)
- * @method static \Laragear\Alerts\Alert action(string $replace, string|array $action, array $parameters = [], bool $blank = false)
- * @method static \Laragear\Alerts\Alert tags(string ...$tags)
- * @method static \Laragear\Alerts\Alert fromJson(string $alert, int $options = 0)
+ *
  * @method static \Laragear\Alerts\Bag getFacadeRoot()
  */
 class Alert extends Facade

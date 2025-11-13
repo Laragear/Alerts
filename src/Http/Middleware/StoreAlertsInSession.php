@@ -7,7 +7,6 @@ use Illuminate\Contracts\Session\Session as SessionContract;
 use Illuminate\Http\Request;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
-
 use function array_merge;
 use function in_array;
 
@@ -23,15 +22,17 @@ class StoreAlertsInSession
 
     /**
      * Handle an incoming request.
+     *
+     * @param \Closure(\Illuminate\Http\Request):(\Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Inertia\Response)  $next
      */
     public function handle(Request $request, Closure $next): mixed
     {
         if ($this->shouldSetAlertsIntoSession($request)) {
-            $this->sessionAlertsToBag($request->session());
+            $this->moveSessionAlertsToBag($request->session());
 
             $response = $next($request);
 
-            $this->bagAlertsToSession($request->session(), $response->isRedirection());
+            $this->moveBagAlertsToSession($request->session(), $response->isRedirection());
 
             return $response;
         }
@@ -52,28 +53,25 @@ class StoreAlertsInSession
     /**
      * Takes the existing alerts in the session and adds them to the bag.
      */
-    protected function sessionAlertsToBag(SessionContract $session): void
+    protected function moveSessionAlertsToBag(SessionContract $session): void
     {
-        // Retrieve both persistent and non-persistent alerts and add them.
+        // Pull both persistent and non-persistent alerts and add them.
         $this->bag->add(
             array_merge(
-                $session->get("$this->key.persistent", []),
-                $session->get("$this->key.alerts", []),
+                $session->pull("$this->key.persistent", []),
+                $session->pull("$this->key.alerts", []),
             )
         );
-
-        // Remove the alerts from the session so these don't duplicate when re-adding them.
-        $session->forget($this->key);
     }
 
     /**
      * Move the alerts back to the session.
      */
-    protected function bagAlertsToSession(SessionContract $session, bool $isRedirection): void
+    protected function moveBagAlertsToSession(SessionContract $session, bool $isRedirection): void
     {
         [$persistent, $nonPersistent] = $this->bag->collect()
             ->partition(function (Alert $alert): bool {
-                return in_array($alert->index, $this->bag->getPersisted(), true);
+                return in_array($alert->getIndex(), $this->bag->getPersisted(), true);
             });
 
         // Persistent keys will be put persistently into the session.

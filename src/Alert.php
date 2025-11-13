@@ -2,374 +2,186 @@
 
 namespace Laragear\Alerts;
 
-use BadMethodCallException;
-use Countable;
+use Closure;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\Support\Jsonable;
-use Illuminate\Support\Fluent;
-use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Traits\Conditionable;
+use Illuminate\Support\Traits\Dumpable;
+use Illuminate\Support\Traits\InteractsWithData;
 use Illuminate\Support\Traits\Macroable;
+use Illuminate\Support\Traits\Tappable;
 use JsonSerializable;
-use Stringable;
-
+use RuntimeException;
+use function app;
+use function data_get;
+use function data_set;
+use function func_get_args;
 use function is_array;
 use function json_encode;
-use function sort;
-use function sprintf;
-use function strcmp;
-use function trans;
-use function trim;
-use function url;
+use function optional;
+use function value;
 
-class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
+abstract class Alert implements Arrayable, Jsonable, JsonSerializable, Htmlable
 {
-    use Macroable {
-        __call as macroCall;
-    }
+    use Conditionable, InteractsWithData, Macroable, Dumpable, Tappable;
 
     /**
-     * The internal key of this Alert in the bag.
-     *
-     * @internal
+     * The instance of the Alert bag.
      */
-    public int $index;
+    protected Bag $alertBag;
 
     /**
-     * Create a new Alert instance.
-     *
-     * @param  string[]  $types
-     * @param  array<int, object{replace: string, url: string, blank: bool}>  $links
-     * @param  string[]  $tags
+     * The index of this Alert instance in the Bag.
      */
-    final public function __construct(
-        protected Bag $bag,
-        protected ?string $persistKey = null,
-        protected string $message = '',
-        protected array $types = [],
-        protected array $links = [],
-        protected bool $dismissible = false,
-        protected array $tags = [],
-        protected Fluent $metadata = new Fluent()
-    ) {
-        //
-    }
+    protected int $index;
 
     /**
-     * Sets the Bag for the Alert.
-     *
-     * @return $this
+     * The key used to persist this alert.
      */
-    public function setBag(Bag $bag): static
+    protected ?string $persistenceKey = null;
+
+    /**
+     * The set of attributes for this Alert.
+     */
+    protected array $attributes = [];
+
+    /**
+     * Create a new Base Alert instance.
+     */
+    public function __construct(iterable $attributes = [])
     {
-        $this->bag = $bag;
-
-        return $this;
+        $this->fill($this->getDefaults())->fill($attributes);
     }
 
     /**
-     * Returns the key used to persist the alert, if any.
-     *
-     * @internal
+     * Returns an array of default values.
      */
-    public function getPersistKey(): ?string
+    protected function getDefaults(): array
     {
-        return $this->persistKey;
+        return [
+            //
+        ];
     }
 
     /**
-     * Returns the message of the Alert.
-     *
-     * @internal
-     */
-    public function getMessage(): string
-    {
-        return $this->message;
-    }
-
-    /**
-     * Returns the types set for this Alert.
-     *
-     * @return string[]
-     *
-     * @internal
-     */
-    public function getTypes(): array
-    {
-        return $this->types;
-    }
-
-    /**
-     * Returns the links to replace in the message.
-     *
-     * @return array<int, object{replace: string, url: string, blank: bool}>
-     *
-     * @internal
-     */
-    public function getLinks(): array
-    {
-        return $this->links;
-    }
-
-    /**
-     * Check if the Alert should be dismissible.
-     *
-     * @internal
-     */
-    public function isDismissible(): bool
-    {
-        return $this->dismissible;
-    }
-
-    /**
-     * Returns the tags of this Alert.
-     *
-     * @internal
-     */
-    public function getTags(): array
-    {
-        return $this->tags;
-    }
-
-    /**
-     * Returns the alert metadata.
-     *
-     * @template TGetDefault
-     *
-     * @param  TGetDefault|(\Closure(): TGetDefault)  $default
-     * @return TGetDefault|\Illuminate\Support\Fluent|mixed
-     */
-    public function getMetadata(?string $key = null, mixed $default = null): mixed
-    {
-        return $key !== null
-            ? $this->metadata->get($key, $default)
-            : $this->metadata;
-    }
-
-    /**
-     * Check if the alert contains any of the given tags.
-     *
-     * @internal
-     */
-    public function hasAnyTag(string ...$tags): bool
-    {
-        foreach ($tags as $tag) {
-            if (in_array($tag, $this->tags, true)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Sets a safely-escaped message.
-     *
-     * @return $this
-     */
-    public function message(string $message): static
-    {
-        return $this->raw(e($message));
-    }
-
-    /**
-     * Sets a raw, non-escaped, message.
-     *
-     * @return $this
-     */
-    public function raw(string $message): static
-    {
-        $this->message = $message;
-
-        return $this;
-    }
-
-    /**
-     * Set a localized message into the Alert.
-     *
-     * @return $this
-     */
-    public function trans(string $key, array $replace = [], ?string $locale = null): static
-    {
-        return $this->raw(trans($key, $replace, $locale));
-    }
-
-    /**
-     * Sets a localized pluralized message into the Alert.
-     *
-     * @return $this
-     */
-    public function transChoice(
-        string $key,
-        Countable|int|array $number,
-        array $replace = [],
-        ?string $locale = null
-    ): static {
-        return $this->raw(trans_choice($key, $number, $replace, $locale));
-    }
-
-    /**
-     * Sets one or many types for this alert.
-     *
-     * @return $this
-     */
-    public function types(string ...$types): static
-    {
-        $this->types = $types;
-
-        sort($this->types);
-
-        return $this;
-    }
-
-    /**
-     * Sets the Alert as dismissible.
-     *
-     * @return $this
-     */
-    public function dismiss(bool $dismissible = true): static
-    {
-        $this->dismissible = $dismissible;
-
-        return $this;
-    }
-
-    /**
-     * Persists the key into the session, forever.
-     *
-     * @return $this
+     * Persist the Alert between requests.
      */
     public function persistAs(string $key): static
     {
-        $this->persistKey = $key;
-
-        $this->bag->markPersisted($key, $this->index);
+        $this->alertBag->markPersisted($this->persistenceKey = $key, $this->index);
 
         return $this;
     }
 
     /**
-     * Abandons the Alert from persistence.
-     *
-     * @return $this
+     * Abandons the Alert from being persisted between requests.
      */
-    public function abandon(): static
+    public function abandon(string $key): static
     {
-        $this->bag->abandon($this->persistKey);
+        $this->alertBag->abandon($key);
 
-        $this->persistKey = null;
+        $this->persistenceKey = null;
 
         return $this;
     }
 
     /**
-     * Adds an external link that should be replaced before rendering the Alert.
+     * Fill the fluent instance with an array of attributes.
      *
+     * @param  iterable<string, mixed>  $attributes
      * @return $this
      */
-    public function away(string $replace, string $url, bool $blank = true): static
+    public function fill(iterable $attributes): static
     {
-        $this->links[] = (object) [
-            'replace' => trim($replace, '{}'),
-            'url' => $url,
-            'blank' => $blank,
-        ];
-
-        usort($this->links, static function (object $first, object $second): int {
-            return strcmp($first->replace.$first->url, $second->replace.$second->url);
-        });
-
-        return $this;
-    }
-
-    /**
-     * Adds a link that should be replaced before rendering the Alert.
-     *
-     * @return $this
-     */
-    public function to(string $replace, string $url, bool $blank = false): static
-    {
-        return $this->away($replace, url($url), $blank);
-    }
-
-    /**
-     * Adds a link to a route that should be replaced before rendering the Alert.
-     *
-     * @return $this
-     */
-    public function route(string $replace, string $name, array $parameters = [], bool $blank = false): static
-    {
-        return $this->away($replace, url()->route($name, $parameters), $blank);
-    }
-
-    /**
-     * Adds a link to an action that should be replaced before rendering the Alert.
-     *
-     * @return $this
-     */
-    public function action(string $replace, string|array $action, array $parameters = [], bool $blank = false): static
-    {
-        return $this->away($replace, url()->action($action, $parameters), $blank);
-    }
-
-    /**
-     * Tags the alert.
-     *
-     * @return $this
-     */
-    public function tag(string ...$tags): static
-    {
-        $this->tags = $tags;
-
-        sort($this->tags);
-
-        return $this;
-    }
-
-    /**
-     * Sets a value into the alert metadata.
-     */
-    public function metadata(array|string $key, mixed $value = null): static
-    {
-        if (is_string($key)) {
-            $key = [$key => $value];
-        }
-
-        foreach ($key as $name => $value) {
-            $this->metadata[$name] = $value;
+        foreach ($attributes as $key => $value) {
+            $this->attributes[$key] = $value;
         }
 
         return $this;
     }
 
     /**
-     * Get the instance as an array.
-     *
-     * @return array{message: string, types: string[], dismissible: bool, metadata: array}
+     * @inheritDoc
+     */
+    public function toHtml(): mixed
+    {
+        throw new RuntimeException('No view is assigned to render the [' . static::class . '] alert.');
+    }
+
+    /**
+     * @inheritDoc
      */
     public function toArray(): array
     {
-        return [
-            'message' => $this->message,
-            'types' => $this->types,
-            'dismissible' => $this->dismissible,
-            'metadata' => $this->metadata->toArray(),
-        ];
+        return $this->all();
     }
 
     /**
-     * Convert the object to its JSON representation.
+     * @inheritDoc
+     */
+    public function all($keys = null): array
+    {
+        $data = $this->data();
+
+        if (! $keys) {
+            return $data;
+        }
+
+        $results = [];
+
+        foreach (is_array($keys) ? $keys : func_get_args() as $key) {
+            Arr::set($results, $key, Arr::get($data, $key));
+        }
+
+        return $results;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function data($key = null, $default = null): mixed
+    {
+        return $this->get($key, $default);
+    }
+
+    /**
+     * Get an attribute from the Alert instance using "dot" notation.
      *
-     * @param  int  $options
+     * @template TGetDefault
+     *
+     * @param  string|null  $key
+     * @param  TGetDefault|(\Closure(): TGetDefault)  $default
+     * @return mixed|TGetDefault
+     */
+    public function get(string|null $key, mixed $default = null): mixed
+    {
+        return data_get($this->attributes, $key, $default);
+    }
+
+    /**
+     * Set an attribute on the Alert instance using "dot" notation.
+     *
+     * @return $this
+     */
+    public function set(string $key, mixed $value): static
+    {
+        data_set($this->attributes, $key, $value);
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
      */
     public function toJson($options = 0): string
     {
-        return json_encode($this->jsonSerialize(), $options | JSON_THROW_ON_ERROR);
+        return json_encode($this->jsonSerialize(), $options);
     }
 
     /**
-     * Specify data which should be serialized to JSON.
-     *
-     * @return array{message: string, types: string[], dismissible: bool, metadata: array}
+     * @inheritDoc
      */
     public function jsonSerialize(): array
     {
@@ -377,11 +189,35 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
     }
 
     /**
-     * Returns the string representation of the Alert.
+     * Dynamically retrieve the value of an attribute.
      */
-    public function __toString(): string
+    public function __get(string $key)
     {
-        return $this->toJson();
+        return $this->get($key);
+    }
+
+    /**
+     * Dynamically set the value of an attribute.
+     */
+    public function __set(string $key, mixed $value): void
+    {
+        $this->set($key, $value);
+    }
+
+    /**
+     * Dynamically check if an attribute is set.
+     */
+    public function __isset(string $key): bool
+    {
+        return $this->has($key);
+    }
+
+    /**
+     * Dynamically unset an attribute.
+     */
+    public function __unset(string $key): void
+    {
+        unset($this->attributes[$key]);
     }
 
     /**
@@ -389,18 +225,14 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
      *
      * @codeCoverageIgnore
      *
-     * @return array{persist_key: string|null, message: string, types: array<string>, links: array<int, object{replace: string, url: string, blank: bool}>, dismissible: bool, tags: array<string>, metadata: array}
+     * @return  array{persistenceKey: string|null, index: int, attributes: mixed}
      */
     public function __serialize(): array
     {
         return [
-            'persist_key' => $this->persistKey,
-            'message' => $this->message,
-            'types' => $this->types,
-            'links' => $this->links,
-            'dismissible' => $this->dismissible,
-            'tags' => $this->tags,
-            'metadata' => $this->metadata->toArray(),
+            'persistenceKey' => $this->persistenceKey,
+            'index' => $this->index,
+            'attributes' => $this->attributes,
         ];
     }
 
@@ -409,59 +241,142 @@ class Alert implements Arrayable, Jsonable, JsonSerializable, Stringable
      *
      * @codeCoverageIgnore
      *
-     * @param  array{persist_key: string|null, message: string, types: array<string>, links: array<int, object{replace: string, url: string, blank: bool}>, dismissible: bool, tags: array<string>, metadata: array}  $data
+     * @param  array{persistenceKey: string|null, index: int, attributes: mixed}  $data
      */
     public function __unserialize(array $data): void
     {
-        $this->persistKey = $data['persist_key'];
-        $this->message = $data['message'];
-        $this->types = $data['types'];
-        $this->links = $data['links'];
-        $this->dismissible = $data['dismissible'];
-        $this->tags = $data['tags'];
-        $this->metadata = new Fluent($data['metadata']);
+        [
+            'persistenceKey' => $this->persistenceKey,
+            'index' => $this->index,
+            'attributes' => $this->attributes,
+        ] = $data;
     }
 
     /**
-     * Dynamically handle calls to this alert instance.
+     * Returns the Alert Bag instance.
      *
-     * @param  string  $method
-     * @param  array  $parameters
+     * @internal
      */
-    public function __call($method, $parameters): static
+    public function getAlertBag(): ?Bag
     {
-        // If the alert already has a macro with the same name of the method called,
-        // we will pass it to the macro and call it a day. Otherwise, we will pass
-        // the name as the alert unique type and the parameter 0 as the message.
-        if (static::hasMacro($method)) {
-            return $this->macroCall($method, $parameters);
-        }
-
-        if (count($parameters) < 2) {
-            return $this->types(Str::snake($method, '-'))->message($parameters[0] ?? '');
-        }
-
-        throw new BadMethodCallException(sprintf('Method %s::%s does not exist.', static::class, $method));
+        return $this->alertBag;
     }
 
     /**
-     * Creates a new Alert from a Bag and an array.
+     * Sets an Alert Bag instance into the Alert.
+     *
+     * @internal
+     *
+     * @return $this
      */
-    public static function fromArray(Bag|array $bag, ?array $alert = null): Alert
+    public function setAlertBag(Bag $alertBag): static
     {
-        if (is_array($bag)) {
-            [$bag, $alert] = [app(Bag::class), $bag];
+        $this->alertBag = $alertBag;
+
+        return $this;
+    }
+
+    /**
+     * Returns the key used to persist the Alert.
+     *
+     * @internal
+     */
+    public function getPersistenceKey(): ?string
+    {
+        return $this->persistenceKey;
+    }
+
+    /**
+     * Sets the persistence key to persist the Alert.
+     *
+     * @internal
+     *
+     * @return $this
+     */
+    public function setPersistenceKey(?string $persistenceKey): static
+    {
+        $this->persistenceKey = $persistenceKey;
+
+        return $this;
+    }
+
+    /**
+     * Checks if the Alert was added into the Alert Bag.
+     */
+    public function hasIndex(): bool
+    {
+        return isset($this->index);
+    }
+
+    /**
+     * Returns the internal index of this Alert in the Alert Bag.
+     *
+     * @internal
+     */
+    public function getIndex(): int
+    {
+        return $this->index;
+    }
+
+    /**
+     * Sets the internal index of this Alert in the Alert Bag.
+     *
+     * @internal
+     *
+     * @return $this
+     */
+    public function setIndex(int $index): static
+    {
+        $this->index = $index;
+
+        return $this;
+    }
+
+    /**
+     * Moves the Alert to the Bag, if it wasn't moved before.
+     */
+    public function pushToBag(): static
+    {
+        if (!isset($this->index)) {
+            app(Bag::class)->add($this);
         }
 
-        return new static(
-            $bag,
-            null,
-            $alert['message'],
-            $alert['types'],
-            [],
-            $alert['dismissible'] ?? false,
-            $alert['tags'] ?? [],
-            new Fluent($alert['metadata'] ?? []),
-        );
+        return $this;
+    }
+
+    /**
+     * Creates a new Alert instance.
+     */
+    public static function make(iterable $attributes = []): static
+    {
+        return new static($attributes);
+    }
+
+    /**
+     * Creates a new Alert instance and immediately adds it to the Alert bag.
+     */
+    public static function push(iterable $attributes = []): static
+    {
+        return static::make($attributes)->pushToBag();
+    }
+
+    /**
+     * Creates an Alert only if the condition evaluates to true.
+     *
+     * @return \Laragear\Alerts\Alert
+     */
+    public static function pushWhen(Closure|bool $condition, iterable $attributes = []): mixed
+    {
+        return value($condition) ? static::push($attributes) : optional();
+    }
+
+    /**
+     * Creates an Alert only if the condition evaluates to false.
+     *
+     * @return \Laragear\Alerts\Alert
+     */
+    public static function pushUnless(Closure|bool $condition, iterable $attributes = []): mixed
+    {
+        return ! value($condition) ? static::push($attributes) : optional();
     }
 }

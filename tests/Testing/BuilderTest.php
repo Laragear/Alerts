@@ -2,14 +2,11 @@
 
 namespace Tests\Testing;
 
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\URL;
 use Laragear\Alerts\Facades\Alert;
 use Laragear\Alerts\Testing\Fakes\BagFake;
 use PHPUnit\Framework\AssertionFailedError;
+use Tests\Fixtures\TestAlert;
 use Tests\TestCase;
-
-use function e;
 
 class BuilderTest extends TestCase
 {
@@ -24,7 +21,7 @@ class BuilderTest extends TestCase
 
     public function test_exists(): void
     {
-        Alert::raw('foo');
+        TestAlert::push();
 
         $this->bag->assertAlert()->exists();
     }
@@ -47,14 +44,14 @@ class BuilderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("Failed to assert that no alert matches the expectations.\nFailed asserting that an object is empty.");
 
-        Alert::raw('foo');
+        TestAlert::push();
 
         $this->bag->assertAlert()->missing();
     }
 
     public function test_unique(): void
     {
-        Alert::raw('foo');
+        TestAlert::push();
 
         $this->bag->assertAlert()->unique();
     }
@@ -64,16 +61,16 @@ class BuilderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 2 matches expected size 1.");
 
-        Alert::raw('foo');
-        Alert::raw('bar');
+        TestAlert::push();
+        TestAlert::push();
 
         $this->bag->assertAlert()->unique();
     }
 
     public function test_count(): void
     {
-        Alert::raw('foo');
-        Alert::raw('bar');
+        TestAlert::push();
+        TestAlert::push();
 
         $this->bag->assertAlert()->count(2);
     }
@@ -83,248 +80,42 @@ class BuilderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("Failed to assert that [2] alerts match the expected [3] count.\nFailed asserting that actual size 2 matches expected size 3.");
 
-        Alert::raw('foo');
-        Alert::raw('bar');
+        TestAlert::push();
+        TestAlert::push();
 
         $this->bag->assertAlert()->count(3);
     }
 
-    public function test_filters_by_raw(): void
+    public function test_with(): void
     {
-        Alert::raw('foo');
-        Alert::raw('bar');
+        TestAlert::push(['foo' => 'bar']);
+        TestAlert::push(['foo' => 'bar']);
+        TestAlert::push(['baz' => 'qux']);
 
-        $this->bag->assertAlert()->withRaw('foo')->unique();
-    }
+        $this->bag->assertAlert()->with('baz', 'qux')->unique();
 
-    public function test_filters_by_raw_fails(): void
-    {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
+        $this->expectExceptionMessage("Failed to assert that [1] alerts match the expected [2] count.\nFailed asserting that actual size 1 matches expected size 2.");
 
-        Alert::raw('foo');
-        Alert::raw('bar');
-
-        $this->bag->assertAlert()->withRaw('quz')->unique();
+        $this->bag->assertAlert()->with('baz', 'qux')->count(2);
     }
 
-    public function test_filters_by_message(): void
+    public function test_with_callback(): void
     {
-        Alert::raw(e('<foo>'));
-        Alert::raw('<foo>');
+        TestAlert::push(['foo' => 'bar']);
+        TestAlert::push(['baz' => 'qux']);
 
-        $this->bag->assertAlert()->withMessage('<foo>')->unique();
-    }
+        $this->bag->assertAlert()->with(fn($alert) => $alert->baz === 'qux')->unique();
 
-    public function test_filters_by_message_fails(): void
-    {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
+        $this->expectExceptionMessage("Failed to assert that [1] alerts match the expected [2] count.\nFailed asserting that actual size 1 matches expected size 2.");
 
-        Alert::raw(e('<bar>'));
-        Alert::raw('<foo>');
-
-        $this->bag->assertAlert()->withMessage('<foo>')->unique();
-    }
-
-    public function test_filters_by_trans(): void
-    {
-        Lang::shouldReceive('get')->with('foo.bar', [], null)->twice()->andReturn('baz');
-
-        Alert::raw(Lang::get('foo.bar', [], null));
-        Alert::raw('foo.bar');
-
-        $this->bag->assertAlert()->withTrans('foo.bar')->unique();
-    }
-
-    public function test_filters_by_trans_fails(): void
-    {
-        $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
-
-        Lang::shouldReceive('get')->with('foo.bar', [], null)->once()->andReturn('baz');
-
-        Alert::raw('foo.bar');
-
-        $this->bag->assertAlert()->withTrans('foo.bar')->unique();
-    }
-
-    public function test_filters_by_trans_choice(): void
-    {
-        Lang::shouldReceive('choice')->with('foo.bar', 2, [], null)->twice()->andReturn('baz');
-
-        Alert::raw(Lang::choice('foo.bar', 2, [], null));
-        Alert::raw('foo.bar');
-
-        $this->bag->assertAlert()->withTransChoice('foo.bar', 2)->unique();
-    }
-
-    public function test_filters_by_trans_choice_fails(): void
-    {
-        $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
-
-        Lang::shouldReceive('choice')->with('foo.bar', 2, [], null)->once()->andReturn('baz');
-
-        Alert::raw('foo.bar');
-
-        $this->bag->assertAlert()->withTransChoice('foo.bar', 2)->unique();
-    }
-
-    public function test_filters_by_link_away(): void
-    {
-        Alert::raw('foo.bar')->away('foo', 'bar')->away('baz', 'quz');
-
-        $this->bag->assertAlert()->withAway('foo', 'bar')->withAway('baz', 'quz')->unique();
-    }
-
-    public function test_filters_by_link_away_fails(): void
-    {
-        $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
-
-        Alert::raw('foo.bar')->away('bar', 'foo');
-
-        $this->bag->assertAlert()->withAway('foo', 'bar')->unique();
-    }
-
-    public function test_filters_by_multiple_link_away(): void
-    {
-        Alert::raw('foo.bar')->away('foo', 'bar')->away('baz', 'quz');
-
-        $this->bag->assertAlert()->withAway('baz', 'quz')->withAway('foo', 'bar')->unique();
-    }
-
-    public function test_filters_by_multiple_link_away_fails(): void
-    {
-        $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
-
-        Alert::raw('foo.bar')->away('foo', 'bar')->away('baz', 'quz');
-
-        $this->bag->assertAlert()->withAway('foo', 'bar')->unique();
-    }
-
-    public function test_filters_by_link_to(): void
-    {
-        URL::shouldReceive('to')->with('foo', [], null)->twice()->andReturn('bar');
-
-        Alert::raw('foo.bar')->to('bar', 'foo');
-
-        $this->bag->assertAlert()->withTo('bar', 'foo')->unique();
-    }
-
-    public function test_filters_by_link_to_fails(): void
-    {
-        $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
-
-        URL::shouldReceive('to')->with('foo', [], null)->once()->andReturn('bar');
-        URL::shouldReceive('to')->with('bar', [], null)->once()->andReturn('bar');
-
-        Alert::raw('foo.bar')->to('bar', 'foo');
-
-        $this->bag->assertAlert()->withTo('foo', 'bar')->unique();
-    }
-
-    public function test_filters_by_link_route(): void
-    {
-        URL::shouldReceive('route')->with('foo', [])->twice()->andReturn('bar');
-
-        Alert::raw('foo.bar')->route('bar', 'foo');
-
-        $this->bag->assertAlert()->withRoute('bar', 'foo')->unique();
-    }
-
-    public function test_filters_by_link_route_fails(): void
-    {
-        $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
-
-        URL::shouldReceive('route')->with('foo', [])->once()->andReturn('bar');
-        URL::shouldReceive('route')->with('bar', [])->once()->andReturn('bar');
-
-        Alert::raw('foo.bar')->route('bar', 'foo');
-
-        $this->bag->assertAlert()->withRoute('foo', 'bar')->unique();
-    }
-
-    public function test_filters_by_link_action(): void
-    {
-        URL::shouldReceive('action')->with('foo', [])->twice()->andReturn('bar');
-
-        Alert::raw('foo.bar')->action('bar', 'foo');
-
-        $this->bag->assertAlert()->withAction('bar', 'foo')->unique();
-    }
-
-    public function test_filters_by_link_action_fails(): void
-    {
-        $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
-
-        URL::shouldReceive('action')->with('foo', [])->once()->andReturn('bar');
-        URL::shouldReceive('action')->with('bar', [])->once()->andReturn('bar');
-
-        Alert::raw('foo.bar')->action('bar', 'foo');
-
-        $this->bag->assertAlert()->withAction('foo', 'bar')->unique();
-    }
-
-    public function test_filters_by_types(): void
-    {
-        Alert::raw('foo.bar')->types('foo', 'bar');
-
-        $this->bag->assertAlert()->withTypes('bar', 'foo')->unique();
-    }
-
-    public function test_filters_by_types_fails(): void
-    {
-        $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
-
-        Alert::raw('foo.bar')->types('foo', 'bar');
-
-        $this->bag->assertAlert()->withTypes('foo')->unique();
-    }
-
-    public function test_filters_by_dismissible(): void
-    {
-        Alert::raw('foo.bar')->dismiss();
-
-        $this->bag->assertAlert()->dismissible()->unique();
-    }
-
-    public function test_filters_by_dismissible_fails(): void
-    {
-        $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
-
-        Alert::raw('foo.bar')->dismiss(false);
-
-        $this->bag->assertAlert()->dismissible()->unique();
-    }
-
-    public function test_filters_by_not_dismissible(): void
-    {
-        Alert::raw('foo.bar')->dismiss(false);
-
-        $this->bag->assertAlert()->notDismissible()->unique();
-    }
-
-    public function test_filters_by_not_dismissible_fails(): void
-    {
-        $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
-
-        Alert::raw('foo.bar')->dismiss(true);
-
-        $this->bag->assertAlert()->notDismissible()->unique();
+        $this->bag->assertAlert()->with(fn($alert) => $alert->baz === 'qux')->count(2);
     }
 
     public function test_filters_by_persisted(): void
     {
-        Alert::raw('foo')->persistAs('bar');
+        TestAlert::push()->persistAs('bar');
 
         $this->bag->assertAlert()->persisted()->unique();
     }
@@ -334,14 +125,14 @@ class BuilderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
 
-        Alert::raw('foo');
+        TestAlert::push();
 
         $this->bag->assertAlert()->persisted()->unique();
     }
 
     public function test_filters_by_not_persisted(): void
     {
-        Alert::raw('foo');
+        TestAlert::push();
 
         $this->bag->assertAlert()->notPersisted()->unique();
     }
@@ -351,14 +142,14 @@ class BuilderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
 
-        Alert::raw('foo')->persistAs('foo');
+        TestAlert::push()->persistAs('bar')->persistAs('foo');
 
         $this->bag->assertAlert()->notPersisted()->unique();
     }
 
     public function test_filters_by_persisted_as(): void
     {
-        Alert::raw('foo')->persistAs('bar');
+        TestAlert::push()->persistAs('bar');
 
         $this->bag->assertAlert()->persistedAs('bar');
     }
@@ -368,16 +159,16 @@ class BuilderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("Failed to assert that [1] persistent alerts exist.\nFailed asserting that actual size 0 matches expected size 1.");
 
-        Alert::raw('foo')->persistAs('bar');
+        TestAlert::push()->persistAs('bar');
 
         $this->bag->assertAlert()->persistedAs('foo');
     }
 
     public function test_filters_by_persisted_as_array(): void
     {
-        Alert::raw('foo')->persistAs('foo');
-        Alert::raw('foo')->persistAs('bar');
-        Alert::raw('foo')->persistAs('quz');
+         TestAlert::push()->persistAs('foo');
+         TestAlert::push()->persistAs('bar');
+         TestAlert::push()->persistAs('quz');
 
         $this->bag->assertAlert()->persistedAs('bar', 'quz');
     }
@@ -387,42 +178,10 @@ class BuilderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("Failed to assert that [2] persistent alerts exist.\nFailed asserting that actual size 0 matches expected size 2.");
 
-        Alert::raw('foo')->persistAs('foo');
-        Alert::raw('foo')->persistAs('bar');
-        Alert::raw('foo')->persistAs('quz');
+         TestAlert::push()->persistAs('foo');
+         TestAlert::push()->persistAs('bar');
+         TestAlert::push()->persistAs('quz');
 
         $this->bag->assertAlert()->persistedAs('qux', 'quuz');
-    }
-
-    public function test_filters_by_tag(): void
-    {
-        Alert::raw('foo')->tag('bar');
-        Alert::raw('baz')->tag('bar', 'quz');
-        Alert::raw('qux')->tag('quz');
-
-        $this->bag->assertAlert()->withTag('bar', 'quz')->unique();
-        $this->bag->assertAlert()->withTag('bar')->unique();
-        $this->bag->assertAlert()->withTag('quz')->unique();
-    }
-
-    public function test_filters_by_tag_fails(): void
-    {
-        $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("Failed to assert that there is only one alert.\nFailed asserting that actual size 0 matches expected size 1.");
-
-        Alert::raw('foo')->tag('bar');
-
-        $this->bag->assertAlert()->withTag('bar', 'quz')->unique();
-    }
-
-    public function test_filters_by_any_tag(): void
-    {
-        Alert::raw('foo')->tag('bar');
-        Alert::raw('baz')->tag('bar', 'quz');
-        Alert::raw('qux')->tag('quz');
-
-        $this->bag->assertAlert()->withAnyTag('bar', 'quz')->count(3);
-        $this->bag->assertAlert()->withAnyTag('bar')->count(2);
-        $this->bag->assertAlert()->withAnyTag('quz')->count(2);
     }
 }

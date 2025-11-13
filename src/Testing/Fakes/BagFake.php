@@ -20,7 +20,7 @@ class BagFake extends Bag
      */
     public function __construct(array $tags, array $persisted = [])
     {
-        parent::__construct($tags, $persisted);
+        parent::__construct($tags, new Collection($persisted));
 
         $this->added = $this->alerts;
     }
