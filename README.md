@@ -376,9 +376,29 @@ This key is also used when [sending JSON alerts](#sending-json-alerts).
 
 ## Serialization
 
-Alerts implement the `__serialize()` and `__unserialize()` to only save its attributes. Other added properties will not be serialized.
+Alerts implement the `__serialize()` and `__unserialize()` to only save its attributes and the persistence key. The rest of the class properties will not be serialized.
 
-If you depend on custom serialization, like restoring object instances or add other data, you may override the serialization methods.
+If you depend on custom serialization, like restoring object instances or other data, you may override the serialization methods to store a storable representation of your data. For example, when you have to deal with object instances like Container Services or Eloquent Models.
+
+```php
+use App\Models\User;
+
+protected User $user;
+
+public function __serialize(): array
+{
+    return array_merge(parent::__serialize(), [
+        'user' => $this->user->getKey(),
+    ];
+}
+
+public function __unserialize(array $data): void
+{
+    parent::__unserialize($data);
+    
+    $this->user = User::findOrFail($data['user']);
+}
+```
 
 ### JSON
 
@@ -388,7 +408,7 @@ Alerts can be serialized into an array and a JSON string automatically, using `t
 {
     "heading": "Invoice paid",
     "text": "Follow your order in your dashboard.",
-    "color": "green",
+    "color": "green"
 }
 ```
 
@@ -403,13 +423,13 @@ Sometimes your application may receive a JSON Alert from an external service usi
 ```json
 {
     "data" : {
-        // ...
+        "items": "..."
     },
     "alerts": [
         {
             "heading": "Invoice paid",
             "text": "Follow your order in your dashboard.",
-            "color": "green",
+            "color": "green"
         }
     ]
 }
@@ -462,7 +482,7 @@ When you receive a JSON Response, you will see the alerts appended to whichever 
             {
                 "heading": "Invoice paid",
                 "text": "Follow your order in your dashboard.",
-                "color": "green",
+                "color": "green"
             }
         ]
     }
@@ -475,7 +495,7 @@ When you receive a JSON Response, you will see the alerts appended to whichever 
 
 #### Sending Alerts to Laravel Inertia
 
-If you're using Laravel Inertia, you may want to use the `alerts.inertia` middleware instead of the `alerts.json`. The middleware will add the alerts **only** to Inertia requests/responses automatically.
+If you're using Laravel Inertia, you may want to use the `alerts.inertia` middleware instead of the `alerts.json`. The middleware will add the alerts **only** to Inertia requests/responses, bypassing redirects.
 
 ```php
 use Illuminate\Support\Facades\Route;
@@ -549,21 +569,7 @@ $bag = Alert::fake();
 
 $bag->assertAlert()->with('heading', 'Hello world!')->exists();
 
-$bag->assertAlert()->with('color', 'green')->missing();
-
-$bag->assertAlert()->with(function (Alert $alert) {
-    return 'Hello world!' === $alert->heading;
-});
-```
-
-```php
-use Laragear\Alerts\Facades\Alert;
-
-$bag = Alert::fake();
-
-$bag->assertAlert()->with('title', 'Hello world!')->exists();
-
-$bag->assertAlert()->with('type', 'success')->missing();
+$bag->assertAlert()->with(fn ($alert) => 'green' === $alert->color)->missing();
 ```
 
 > [!NOTE]
