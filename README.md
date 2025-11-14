@@ -260,7 +260,7 @@ The component cycles through each alert and calls `toHtml()` to render them in y
 ```php
 public function toHtml()
 {
-    return view('flux-callout', [
+    return view(('alerts.flux-callout', [
         'heading' => $this->heading,
         'text' => $this->text,
         'actions' => $this->actions,
