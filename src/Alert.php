@@ -14,6 +14,7 @@ use Illuminate\Support\Traits\Macroable;
 use Illuminate\Support\Traits\Tappable;
 use JsonSerializable;
 use RuntimeException;
+
 use function app;
 use function data_get;
 use function data_set;
@@ -107,7 +108,7 @@ abstract class Alert implements Arrayable, Jsonable, JsonSerializable, Htmlable
      */
     public function toHtml(): mixed
     {
-        throw new RuntimeException('No view is assigned to render the [' . static::class . '] alert.');
+        throw new RuntimeException('No view is assigned to render the ['.static::class.'] alert.');
     }
 
     /**
@@ -155,7 +156,7 @@ abstract class Alert implements Arrayable, Jsonable, JsonSerializable, Htmlable
      * @param  TGetDefault|(\Closure(): TGetDefault)  $default
      * @return mixed|TGetDefault
      */
-    public function get(string|null $key, mixed $default = null): mixed
+    public function get(?string $key, mixed $default = null): mixed
     {
         return data_get($this->attributes, $key, $default);
     }
@@ -225,7 +226,7 @@ abstract class Alert implements Arrayable, Jsonable, JsonSerializable, Htmlable
      *
      * @codeCoverageIgnore
      *
-     * @return  array{persistenceKey: string|null, index: int, attributes: mixed}
+     * @return array{persistenceKey: string|null, index: int, attributes: mixed}
      */
     public function __serialize(): array
     {
@@ -337,7 +338,7 @@ abstract class Alert implements Arrayable, Jsonable, JsonSerializable, Htmlable
      */
     public function pushToBag(): static
     {
-        if (!isset($this->index)) {
+        if (! isset($this->index)) {
             app(Bag::class)->add($this);
         }
 

@@ -8,6 +8,7 @@ use Inertia\Middleware;
 use Inertia\Testing\AssertableInertia;
 use Tests\Fixtures\TestAlert;
 use Tests\TestCase;
+
 use function response;
 
 class AddAlertsToInertiaTest extends TestCase
