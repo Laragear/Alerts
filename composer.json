@@ -34,7 +34,7 @@
         "illuminate/view": "11.*|12.*"
     },
     "require-dev": {
-        "orchestra/testbench": "9.*|10.*",
+        "orchestra/testbench": "^9.15.0|10.*",
         "inertiajs/inertia-laravel": "^2.0"
     },
     "autoload": {
