@@ -442,7 +442,7 @@ use App\Alerts\FluxCallout;
 public function fromServer(Request $request)
 {
     // Add the alerts from the response
-    $request->collect('alerts')->map(FluxCallout::make(...))
+    $request->collect('alerts')->map(FluxCallout::push(...))
 }
 ```
 
