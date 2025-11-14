@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Tests\Fixtures\TestAlert;
 use Tests\Fixtures\TestAlertWithDefaults;
+
 use function json_decode;
 use function json_encode;
 use function serialize;
@@ -129,7 +130,7 @@ class AlertTest extends TestCase
     {
         $alert = new TestAlert(['foo' => 'bar', 'baz' => 'quz', 'qux' => 'doge']);
 
-        static::assertSame(['qux' => 'doge', 'foo' => 'bar',], $alert->all('qux', 'foo'));
+        static::assertSame(['qux' => 'doge', 'foo' => 'bar'], $alert->all('qux', 'foo'));
     }
 
     public function test_all_returns_one_key(): void
@@ -266,4 +267,3 @@ class AlertTest extends TestCase
         static::assertInstanceOf(TestAlert::class, TestAlert::pushUnless(fn () => false, ['foo' => 'bar']));
     }
 }
-

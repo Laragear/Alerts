@@ -7,6 +7,7 @@ use Illuminate\Contracts\Session\Session as SessionContract;
 use Illuminate\Http\Request;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
+
 use function array_merge;
 use function in_array;
 
@@ -23,7 +24,7 @@ class StoreAlertsInSession
     /**
      * Handle an incoming request.
      *
-     * @param \Closure(\Illuminate\Http\Request):(\Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Inertia\Response)  $next
+     * @param  \Closure(\Illuminate\Http\Request):(\Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Inertia\Response)  $next
      */
     public function handle(Request $request, Closure $next): mixed
     {

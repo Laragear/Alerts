@@ -4,6 +4,7 @@ namespace Tests\Console\Commands;
 
 use Illuminate\Support\Facades\File;
 use Tests\TestCase;
+
 use function app_path;
 
 class AlertCreateCommandTest extends TestCase
