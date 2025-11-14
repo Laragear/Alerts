@@ -45,20 +45,18 @@ class AlertCreateCommand extends GeneratorCommand implements PromptsForMissingIn
 
     /**
      * Execute the console command.
-     *
-     * @return void
      */
-    public function handle(): void
+    public function handle(): bool
     {
         if (parent::handle() === false && ! $this->option('force')) {
-            return;
+            return false;
         }
 
-        if ($this->withoutView()) {
-            return;
+        if (!$this->withoutView()) {
+            $this->writeBladeView();
         }
 
-        $this->writeBladeView();
+        return true;
     }
 
     /**
