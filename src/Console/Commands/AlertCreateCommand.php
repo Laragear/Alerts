@@ -52,7 +52,7 @@ class AlertCreateCommand extends GeneratorCommand implements PromptsForMissingIn
             return false;
         }
 
-        if (! $this->withoutView()) {
+        if (!$this->withoutView()) {
             $this->writeBladeView();
         }
 

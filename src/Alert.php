@@ -226,13 +226,12 @@ abstract class Alert implements Arrayable, Jsonable, JsonSerializable, Htmlable
      *
      * @codeCoverageIgnore
      *
-     * @return array{persistenceKey: string|null, index: int, attributes: mixed}
+     * @return array{persistenceKey: string|null, attributes: mixed}
      */
     public function __serialize(): array
     {
         return [
             'persistenceKey' => $this->persistenceKey,
-            'index' => $this->index,
             'attributes' => $this->attributes,
         ];
     }
@@ -242,13 +241,12 @@ abstract class Alert implements Arrayable, Jsonable, JsonSerializable, Htmlable
      *
      * @codeCoverageIgnore
      *
-     * @param  array{persistenceKey: string|null, index: int, attributes: mixed}  $data
+     * @param  array{persistenceKey: string|null, attributes: mixed}  $data
      */
     public function __unserialize(array $data): void
     {
         [
             'persistenceKey' => $this->persistenceKey,
-            'index' => $this->index,
             'attributes' => $this->attributes,
         ] = $data;
     }

@@ -213,13 +213,12 @@ class AlertTest extends TestCase
     public function test_serialization(): void
     {
         $alert = new TestAlert(['foo' => 'bar']);
-        $alert->setIndex(11)->setPersistenceKey('test-alert')->setAlertBag(Mockery::mock(Bag::class));
+        $alert->setPersistenceKey('test-alert')->setAlertBag(Mockery::mock(Bag::class));
 
         /** @var \Tests\Fixtures\TestAlert $alert */
         $alert = unserialize(serialize($alert));
 
         static::assertSame(['foo' => 'bar'], $alert->all());
-        static::assertSame(11, $alert->getIndex());
         static::assertSame('test-alert', $alert->getPersistenceKey());
     }
 
