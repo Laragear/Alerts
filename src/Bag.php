@@ -4,6 +4,7 @@ namespace Laragear\Alerts;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Macroable;
+
 use function array_key_last;
 use function is_iterable;
 
@@ -41,7 +42,7 @@ class Bag
      */
     public function add(Alert|iterable $alert): static
     {
-        if (!is_iterable($alert)) {
+        if (! is_iterable($alert)) {
             $alert = [$alert];
         }
 

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Notifications\Notification;
 use RuntimeException;
 use TypeError;
+
 use function get_class;
 use function gettype;
 use function is_object;
@@ -27,22 +28,22 @@ class AlertChannel
     public function send(object $notifiable, Notification $notification): void
     {
         // If we're outside the request lifecycle, do nothing.
-        if (!$this->request) {
+        if (! $this->request) {
             throw new RuntimeException('Cannot set an alert notification outside a request lifecycle.');
         }
 
         $alert = $notification->toAlert($notifiable); // @phpstan-ignore-line
 
-        if (!$alert instanceof Alert) {
+        if (! $alert instanceof Alert) {
             throw new TypeError(
                 vsprintf('The toAlert() method must return a Laragear\Alert\Alert instance, %s issued.', [
-                    is_object($alert) ? get_class($alert) : gettype($alert)
+                    is_object($alert) ? get_class($alert) : gettype($alert),
                 ])
             );
         }
 
         if ($alert->hasIndex()) {
-            throw new RuntimeException('Alert #' . $alert->getIndex() . ' is already set in the bag.');
+            throw new RuntimeException('Alert #'.$alert->getIndex().' is already set in the bag.');
         }
 
         $this->bag->add($alert);

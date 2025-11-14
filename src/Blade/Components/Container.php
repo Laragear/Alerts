@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\View\Component;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Bag;
+
 use function array_map;
 use function explode;
 use function get_class;
@@ -41,7 +42,7 @@ class Container extends Component
     /**
      * Returns a list of filtered alerts.
      *
-     * @return  \Illuminate\Support\Collection<int, \Laragear\Alerts\Alert>
+     * @return \Illuminate\Support\Collection<int, \Laragear\Alerts\Alert>
      */
     protected function alerts(): Collection
     {

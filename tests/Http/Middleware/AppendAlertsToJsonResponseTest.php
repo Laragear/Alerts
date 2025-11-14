@@ -17,7 +17,6 @@ class AppendAlertsToJsonResponseTest extends TestCase
             function () {
                 TestAlert::push(['text' => 'example']);
 
-
                 return response()->json(['bar' => 'baz']);
             }
         )->middleware('alerts.json');
@@ -135,7 +134,6 @@ class AppendAlertsToJsonResponseTest extends TestCase
             'test',
             function () {
                 TestAlert::push(['text' => 'example']);
-
 
                 return response()->json(['bar' => 'baz']);
             }

@@ -6,6 +6,7 @@ use Illuminate\Console\GeneratorCommand;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
+
 use function app_path;
 use function dirname;
 use function file_exists;
@@ -73,7 +74,7 @@ class AlertCreateCommand extends GeneratorCommand implements PromptsForMissingIn
             $separator = '\\';
         }
 
-        $path = $this->viewPath(str_replace('.', $separator, 'alerts.'. $this->getViewName()).'.blade.php');
+        $path = $this->viewPath(str_replace('.', $separator, 'alerts.'.$this->getViewName()).'.blade.php');
 
         if (! $this->files->isDirectory(dirname($path))) {
             $this->files->makeDirectory(dirname($path), 0755, true);
@@ -104,7 +105,7 @@ class AlertCreateCommand extends GeneratorCommand implements PromptsForMissingIn
 
         $replace = $this->hasOption('no-view')
             ? 'parent::toHtml()'
-            : 'view(alerts.'. $this->getViewName() .', $this->all())';
+            : 'view(alerts.'.$this->getViewName().', $this->all())';
 
         return str_replace('{{ view }}', $replace, $class);
     }
