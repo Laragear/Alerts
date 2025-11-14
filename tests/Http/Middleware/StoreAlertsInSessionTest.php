@@ -217,10 +217,10 @@ VIEW
     {
         Route::get('persist')->uses(function () {
             $first = TestAlertWithView::push()->persistAs('foo.bar');
-            $first->callback = fn() => 'foo';
+            $first->callback = fn () => 'foo';
 
             $last = TestAlertWithView::push(['baz' => 'quz'])->persistAs('foo.bar');
-            $last->callback = fn() => 'bar';
+            $last->callback = fn () => 'bar';
 
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
@@ -241,14 +241,14 @@ VIEW
     {
         Route::get('first')->uses(function () {
             $first = TestAlertWithView::push()->persistAs('foo.bar');
-            $first->callback = fn() => 'foo';
+            $first->callback = fn () => 'foo';
 
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
 
         Route::get('second')->uses(function () {
             $first = TestAlertWithView::push()->persistAs('foo.bar');
-            $first->callback = fn() => 'bar';
+            $first->callback = fn () => 'bar';
 
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');
@@ -270,14 +270,14 @@ VIEW,
     {
         Route::get('first')->uses(function () {
             $first = TestAlertWithView::push()->persistAs('foo.bar');
-            $first->callback = fn() => 'foo';
+            $first->callback = fn () => 'foo';
 
             return redirect('/second');
         })->middleware('web');
 
         Route::get('second')->uses(function () {
             $first = TestAlertWithView::push()->persistAs('foo.bar');
-            $first->callback = fn() => 'bar';
+            $first->callback = fn () => 'bar';
 
             return (string) $this->blade('<div class="container"><x-alerts-container /></div>');
         })->middleware('web');

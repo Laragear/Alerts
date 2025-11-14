@@ -105,12 +105,12 @@ class BuilderTest extends TestCase
         TestAlert::push(['foo' => 'bar']);
         TestAlert::push(['baz' => 'qux']);
 
-        $this->bag->assertAlert()->with(fn($alert) => $alert->baz === 'qux')->unique();
+        $this->bag->assertAlert()->with(fn ($alert) => $alert->baz === 'qux')->unique();
 
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("Failed to assert that [1] alerts match the expected [2] count.\nFailed asserting that actual size 1 matches expected size 2.");
 
-        $this->bag->assertAlert()->with(fn($alert) => $alert->baz === 'qux')->count(2);
+        $this->bag->assertAlert()->with(fn ($alert) => $alert->baz === 'qux')->count(2);
     }
 
     public function test_filters_by_persisted(): void
@@ -166,9 +166,9 @@ class BuilderTest extends TestCase
 
     public function test_filters_by_persisted_as_array(): void
     {
-         TestAlert::push()->persistAs('foo');
-         TestAlert::push()->persistAs('bar');
-         TestAlert::push()->persistAs('quz');
+        TestAlert::push()->persistAs('foo');
+        TestAlert::push()->persistAs('bar');
+        TestAlert::push()->persistAs('quz');
 
         $this->bag->assertAlert()->persistedAs('bar', 'quz');
     }
@@ -178,9 +178,9 @@ class BuilderTest extends TestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("Failed to assert that [2] persistent alerts exist.\nFailed asserting that actual size 0 matches expected size 2.");
 
-         TestAlert::push()->persistAs('foo');
-         TestAlert::push()->persistAs('bar');
-         TestAlert::push()->persistAs('quz');
+        TestAlert::push()->persistAs('foo');
+        TestAlert::push()->persistAs('bar');
+        TestAlert::push()->persistAs('quz');
 
         $this->bag->assertAlert()->persistedAs('qux', 'quuz');
     }

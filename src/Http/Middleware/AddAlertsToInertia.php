@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\ResponseFactory as Inertia;
 use Laragear\Alerts\Bag;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+
 use function config;
 
 class AddAlertsToInertia

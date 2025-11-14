@@ -16,7 +16,6 @@ use Laragear\Alerts\Testing\Fakes\BagFake;
  * @method static bool abandon(string $key)
  * @method static bool hasPersistent(string $key)
  * @method static void flush()
- *
  * @method static \Laragear\Alerts\Bag getFacadeRoot()
  */
 class Alert extends Facade

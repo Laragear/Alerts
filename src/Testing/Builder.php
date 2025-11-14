@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Testing\Assert as PHPUnit;
 use Laragear\Alerts\Alert;
 use Laragear\Alerts\Testing\Fakes\BagFake;
+
 use function in_array;
 use function is_array;
 use function is_string;
@@ -100,7 +101,7 @@ class Builder
                 if ($value !== $alert->get($key)) {
                     return false;
                 }
-            } else if (!$value($alert)) {
+            } elseif (! $value($alert)) {
                 return false;
             }
         }
