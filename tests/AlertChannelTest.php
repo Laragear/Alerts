@@ -15,7 +15,6 @@ use TypeError;
 
 class AlertChannelTest extends PHPUnit
 {
-
     protected Bag|Mockery\MockInterface $bag;
 
     protected function setUp(): void
@@ -62,7 +61,8 @@ class AlertChannelTest extends PHPUnit
 
         $this->bag->expects('add')->never();
 
-        AlertNotification::$return = new class extends Alert {
+        AlertNotification::$return = new class extends Alert
+        {
             protected int $index = 0;
         };
 
@@ -79,7 +79,6 @@ class AlertChannelTest extends PHPUnit
         $channel = new AlertChannel($this->bag, new Request);
 
         AlertNotification::$return = new class extends Alert {
-
         };
 
         $this->bag->expects('add')->with(AlertNotification::$return);
