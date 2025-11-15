@@ -88,9 +88,9 @@ class Builder
         if ($this->persisted !== null) {
             if (is_string($this->persisted) && $this->persisted !== $alert->getPersistenceKey()) {
                 return false;
-            } else if (is_array($this->persisted) && !in_array($alert->getPersistenceKey(), $this->persisted, true)) {
+            } elseif (is_array($this->persisted) && ! in_array($alert->getPersistenceKey(), $this->persisted, true)) {
                 return false;
-            } else if (is_bool($this->persisted) && $this->persisted !== (bool) $alert->getPersistenceKey()) {
+            } elseif (is_bool($this->persisted) && $this->persisted !== (bool) $alert->getPersistenceKey()) {
                 return false;
             }
         }
