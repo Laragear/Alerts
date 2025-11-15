@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 use function app_path;
-use function resource_path;
 
 class AlertCreateCommandTest extends TestCase
 {
@@ -86,7 +85,6 @@ BLADE, $content);
 
         static::assertFileExists($this->app->viewPath('alerts/test-alert.blade.php'));
     }
-
 
     public function test_creates_alert_with_custom_view_name_in_subdirectory(): void
     {

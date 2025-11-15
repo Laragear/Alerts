@@ -51,7 +51,7 @@ EOT
     {
         $this->bag->add([
             new TestAlertWithView(),
-            new TestAlert()
+            new TestAlert(),
         ]);
 
         static::assertEquals(<<<'EOT'
