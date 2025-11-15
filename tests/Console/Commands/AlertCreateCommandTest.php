@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 use function app_path;
+use function resource_path;
 
 class AlertCreateCommandTest extends TestCase
 {
@@ -15,6 +16,16 @@ class AlertCreateCommandTest extends TestCase
 
         File::deleteDirectory(app_path('Alerts'));
         File::deleteDirectory(app_path('Views/Alerts'));
+        File::deleteDirectory($this->app->viewPath('alerts'));
+    }
+
+    public function test_does_nothing_when_handle_returns_false(): void
+    {
+        $this->artisan('alert:create', [
+            'name' => 'class',
+        ]);
+
+        static::assertFileDoesNotExist(app_path('Alerts/ClassAlert.php'));
     }
 
     public function test_creates_alert_with_default_view_name(): void
@@ -30,6 +41,17 @@ class AlertCreateCommandTest extends TestCase
         static::assertStringContainsString('namespace App\Alerts;', $content);
         static::assertStringContainsString('class MyCustomAlert', $content);
         static::assertStringContainsString('view(\'alerts.my-custom-alert\', $this->all());', $content);
+
+        static::assertFileExists($this->app->viewPath('alerts/my-custom-alert.blade.php'));
+
+        $content = File::get($this->app->viewPath('alerts/my-custom-alert.blade.php'));
+
+        static::assertStringContainsString(<<<'BLADE'
+<div class="alert">
+    {{ $body }}
+</div>
+
+BLADE, $content);
     }
 
     public function test_creates_alert_with_default_view_name_and_views_namespace(): void
@@ -47,6 +69,8 @@ class AlertCreateCommandTest extends TestCase
         static::assertStringContainsString('namespace App\Views\Alerts;', $content);
         static::assertStringContainsString('class MyCustomAlert', $content);
         static::assertStringContainsString('view(\'alerts.my-custom-alert\', $this->all());', $content);
+
+        static::assertFileExists($this->app->viewPath('alerts/my-custom-alert.blade.php'));
     }
 
     public function test_creates_alert_with_custom_view_name(): void
@@ -59,6 +83,23 @@ class AlertCreateCommandTest extends TestCase
         $content = File::get(app_path('Alerts/MyCustomAlert.php'));
 
         static::assertStringContainsString('view(\'alerts.test-alert\', $this->all());', $content);
+
+        static::assertFileExists($this->app->viewPath('alerts/test-alert.blade.php'));
+    }
+
+
+    public function test_creates_alert_with_custom_view_name_in_subdirectory(): void
+    {
+        $this->artisan('alert:create', [
+            'name' => 'MyCustomAlert',
+            '--view' => 'test.my-alert',
+        ]);
+
+        $content = File::get(app_path('Alerts/MyCustomAlert.php'));
+
+        static::assertStringContainsString('view(\'alerts.test.my-alert\', $this->all());', $content);
+
+        static::assertFileExists($this->app->viewPath('alerts/test/my-alert.blade.php'));
     }
 
     public function test_creates_alert_without_view(): void
@@ -71,6 +112,8 @@ class AlertCreateCommandTest extends TestCase
         $content = File::get(app_path('Alerts/MyCustomAlert.php'));
 
         static::assertStringContainsString('parent::toHtml();', $content);
+
+        static::assertFileDoesNotExist($this->app->viewPath('alerts/my-custom-alert.blade.php'));
     }
 
     public function test_creates_alert_without_view_using_false(): void

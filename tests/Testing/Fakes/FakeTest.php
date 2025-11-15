@@ -119,12 +119,12 @@ class FakeTest extends TestCase
 
     public function test_assert_persisted_exception(): void
     {
-        $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("Failed to assert that [1] persistent alerts exist.\nFailed asserting that actual size 0 matches expected size 1.");
-
         $bag = Alert::fake();
 
         TestAlert::push();
+
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage("Failed to assert that [1] persistent alerts exist.\nFailed asserting that actual size 0 matches expected size 1.");
 
         $bag->assertPersisted('bar');
     }

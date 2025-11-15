@@ -154,12 +154,20 @@ class BuilderTest extends TestCase
         $this->bag->assertAlert()->persistedAs('bar');
     }
 
+    public function test_filters_by_persisted_as_with_many_keys(): void
+    {
+        TestAlert::push()->persistAs('bar');
+        TestAlert::push()->persistAs('foo');
+
+        $this->bag->assertAlert()->persistedAs('bar', 'foo');
+    }
+
     public function test_filters_by_persisted_as_fails(): void
     {
+        TestAlert::push()->persistAs('bar');
+
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("Failed to assert that [1] persistent alerts exist.\nFailed asserting that actual size 0 matches expected size 1.");
-
-        TestAlert::push()->persistAs('bar');
 
         $this->bag->assertAlert()->persistedAs('foo');
     }
