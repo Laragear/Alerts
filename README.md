@@ -28,7 +28,8 @@ Your support allows me to keep this package free, up-to-date and maintainable. A
 
 ## Requirements
 
-* Laravel 11 or later
+* PHP 8.3 or later
+* Laravel 12 or later
 
 ## Installation
 
@@ -260,7 +261,7 @@ The component cycles through each alert and calls `toHtml()` to render them in y
 ```php
 public function toHtml()
 {
-    return view(('alerts.flux-callout', [
+    return view('alerts.flux-callout', [
         'heading' => $this->heading,
         'text' => $this->text,
         'actions' => $this->actions,
@@ -499,11 +500,16 @@ If you're using Laravel Inertia, you may want to use the `alerts.inertia` middle
 
 ```php
 use Illuminate\Support\Facades\Route;
-use App\Models\User;use Inertia\Inertia;
+use App\Models\User;
+use Inertia\Inertia;
+use Laragear\Alerts\Facades\Alert;
 
 Route::middleware('alerts.inertia')
     ->get('users', function () {
-        alert('All users accounted for!')->success();
+        // Push an alert to the frontend.
+        FluxCallout::make()
+            ->title('All users accounted for!')
+            ->color('red');
     
         return Inertia::render('users/index', [
             'users' => User::paginate()
@@ -602,4 +608,4 @@ If you discover any security-related issues, please [use the online form](https:
 
 This specific package version is licensed under the terms of the [MIT License](LICENSE.md), at the time of publishing.
 
-[Laravel](https://laravel.com) is a Trademark of [Taylor Otwell](https://github.com/TaylorOtwell/). Copyright © 2011–2025 Laravel LLC.
+[Laravel](https://laravel.com) is a Trademark of [Taylor Otwell](https://github.com/TaylorOtwell/). Copyright © 2011–2026 Laravel LLC.
