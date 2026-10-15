@@ -1,38 +1,36 @@
 ---
-name: create-alert
-description: Create and customize Alerts in the Laragear Alerts package.
+name: laragear-alerts-create-alert
+description: "Generate new alert classes with Artisan, add fluent setter methods, define defaults, handle translations, or customize HTML rendering of an alert. Exclude pushing alerts to the session, rendering alerts in views, or sending alerts as Notifications (use laragear-alerts-push-alert, laragear-alerts-render-alert, laragear-alerts-notify-alert)."
 ---
 
-# Create Alert
+# Create Alerts
 
-## When to use this skill
+Use when defining a new alert type, or changing how an existing alert class builds or renders its content.
 
-Use this skill when you need to create a new type of alert, add custom methods to an alert class, set default values, handle localization within alerts, or customize how an alert is rendered to HTML.
+## Generate the class
 
-## Features
+1. Run `php artisan alert:create MyAlert`.
+2. This creates the class in `app/Views/Alerts/MyAlert.php` and its view in `resources/views/alerts/my-alert.blade.php`.
 
-### Create via Artisan
+## Fluent setters
 
-Generate a new alert class in `app/Views/Alerts` and its corresponding view in `resources/views/alerts`.
-
-```shell
-php artisan alert:create MyAlert
-```
-
-### Custom Methods
-
-Add methods to the alert class to fluently set attributes using $this->set('key', $value).
+Expose attributes as fluent methods that call `$this->set()`. Always wrap translations inside a method, so call sites stay clean:
 
 ```php
 public function type(string $type): static
 {
     return $this->set('type', $type);
 }
+
+public function message(string $key, array $replace = []): static
+{
+    return $this->set('body', trans($key, $replace));
+}
 ```
 
-### Default Values
+## Defaults
 
-Define defaults for the alert by overriding the `getDefaults()` method.
+Override `getDefaults()` so every instance starts consistent:
 
 ```php
 protected function getDefaults(): array
@@ -44,20 +42,9 @@ protected function getDefaults(): array
 }
 ```
 
-### Localization
+## Rendering
 
-Handle translation within alert methods to keep the calling code clean.
-
-```php
-public function message(string $key, array $replace = []): static
-{
-    return $this->set('message', trans($key, $replace));
-}
-```
-
-### HTML Rendering
-
-The `toHtml()` method determines how the alert is rendered. It should return a view with the alert's attributes.
+`toHtml()` must always return the view with all attributes passed through — no manual HTML strings inside the class:
 
 ```php
 public function toHtml(): mixed
@@ -65,3 +52,5 @@ public function toHtml(): mixed
     return view('alerts.my-alert', $this->all());
 }
 ```
+
+**Success check:** the alert renders without missing-variable errors when pushed and displayed in a Blade view containing `<x-alerts-container />`.

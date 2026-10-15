@@ -1,58 +1,25 @@
-## Laragear Alerts
+# Laragear Alerts
 
-This package allows setting multiple alerts from the backend and rendering them in the frontend using any HTML.
+When showing backend-generated feedback to the user (success/error banners, flash messages, UI notifications), use Laragear Alerts via the alert classes in `App\Alerts\` instead of `session()->flash()` or hand-built Blade partials.
 
-### Features
+Entry point: `YourAlert::push(['body' => '...'])` adds an alert for the current or next (redirected) request.
 
-- **Creating Alerts**: Use the Artisan command to generate alert classes and views.
-@verbatim
-<code-snippet name="Create an Alert" lang="shell">
-php artisan alert:create FluxCallout
-</code-snippet>
-@endverbatim
+## Setting up rendering
 
-- **Pushing Alerts**: Use static methods to push alerts to the bag for the current or next request (if redirecting).
-@verbatim
-<code-snippet name="Push an Alert" lang="php">
-use App\Alerts\FluxCallout;
+To configure where alerts render in the frontend, or when alerts do not appear at all, use the `alerts-setup` skill.
 
-FluxCallout::push(['body' => 'Success!']);
-</code-snippet>
-@endverbatim
+## Creating alert classes
 
-- **Conditional Pushing**: Push alerts only when a condition is met.
-@verbatim
-<code-snippet name="Conditional Push" lang="php">
-FluxCallout::pushWhen($user->isAdmin(), ['body' => 'Welcome, Admin!']);
-</code-snippet>
-@endverbatim
+To define a new alert type or customize its methods, defaults, translations, or rendering, use the `laragear-alerts-alerts-create` skill.
 
-- **Persistence**: Make alerts last between requests until explicitly abandoned.
-@verbatim
-<code-snippet name="Persistent Alert" lang="php">
-FluxCallout::push(['title' => 'Disk full'])->persistAs('disk.full');
+## Pushing alerts
 
-// Later
-FluxCallout::abandon('disk.full');
-</code-snippet>
-@endverbatim
+To push, conditionally push, persist, or abandon alerts in controllers, use the `laragear-alerts-alerts-push` skill.
 
-- **Rendering**: Use the Blade component to render all pushed alerts.
-@verbatim
-<code-snippet name="Render Alerts" lang="blade">
-<x-alerts-container />
-</code-snippet>
-@endverbatim
+## Rendering alerts
 
-- **Notifications**: Integrate alerts with Laravel's notification system.
-@verbatim
-<code-snippet name="Alert Notification" lang="php">
-public function via($notifiable) {
-    return \Laragear\Alerts\AlertChannel::class;
-}
+To display alerts in Blade layouts, use the `laragear-alerts-alerts-render` skill.
 
-public function toAlert($notifiable) {
-    return FluxCallout::make(['body' => 'Notification alert!']);
-}
-</code-snippet>
-@endverbatim
+## Notifications as alerts
+
+To deliver Laravel Notifications as frontend alerts, use the `laragear-alerts-alerts-notify` skill.
