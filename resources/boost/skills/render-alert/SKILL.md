@@ -1,19 +1,15 @@
 ---
-name: render-alert
-description: Render alerts in Blade views using the container component.
+name: laragear-alerts-render-alert
+description: "Display pushed alerts in Blade layouts with the container component, filter which alerts render in a section, or publish and customize the container view. Exclude creating or pushing alerts (use alerts-create, alerts-push)."
 ---
 
-# Render Alert
+# Render Alerts
 
-## When to use this skill
+Use in Blade layouts where pushed alerts must become visible HTML.
 
-Use this skill when you need to display pushed alerts in your frontend using Blade, or when you need to filter which alerts are displayed in a specific part of your layout.
+## Container placement
 
-## Features
-
-### Alerts Container
-
-Place the `<x-alerts-container />` component in your Blade layout (usually in the master template or above the main content) to render all pushed alerts.
+Place `<x-alerts-container />` exactly once in the master layout, above the yielded content — all pushed alerts render there automatically:
 
 ```blade
 <div class="container">
@@ -22,21 +18,17 @@ Place the `<x-alerts-container />` component in your Blade layout (usually in th
 </div>
 ```
 
-### Filtering by Class
+## Scoped sections
 
-Use the `filter` attribute to only show specific alert classes. Multiple classes can be separated by commas.
+Use the `filter` attribute with fully-qualified class names, comma-separated, when a section must show only specific alerts:
 
 ```blade
-<!-- Only show specific alerts -->
-<x-alerts-container filter="\App\Alerts\ImportantAlert" />
-
-<!-- Show multiple specific alerts -->
 <x-alerts-container filter="\App\Alerts\ErrorAlert,\App\Alerts\WarningAlert" />
 ```
 
-### Customizing the Container
+## Customizing the container
 
-The container view is located at `laragear::alerts.container`. You can publish and customize it if needed.
+Publish and edit the container view (`laragear::alerts.container`) instead of building a replacement component:
 
 ```shell
 php artisan vendor:publish --tag="alerts-views"
